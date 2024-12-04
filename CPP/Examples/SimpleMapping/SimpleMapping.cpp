@@ -1,3 +1,9 @@
+/*
+* Example for handling mapping, using unordered map
+* For an array of values of integers, record and then print the result of how many numbers was found
+* For example array of (1, 4, 5, 1, 5, 7, 9, 0, 5)
+* The result should be for 1 - 2 found, 5 - 3 found
+*/
 #include <iostream>
 #include <unordered_map>
 
@@ -10,12 +16,6 @@ void printResults(std::unordered_map<int, int> result) {
 
 }
 
-
-/*
-* For an array of values of integers, record and then print the result of how many numbers was found
-* For example array of (1, 4, 5, 1, 5, 7, 9, 0, 5)
-* The result should be for 1 - 2 found, 5 - 3 found
-*/
 int main()
 {
     std::cout << "Start" << std::endl;
@@ -27,7 +27,7 @@ int main()
         int number = input[i];
         auto isThere = map_array.find(number);
         if (isThere == map_array.end()) {
-            map_array.insert ( { number, 1 } );
+            map_array.insert( { number, 1 } );
         }
         else {
             isThere->second += 1;
