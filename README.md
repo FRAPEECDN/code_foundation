@@ -17,6 +17,9 @@ The foundation projects is basic foundation of programming and showcase
 6. Sorting and searching in arrays
 7. How some basic collection work to assist points 5 and 6.
 8. Unit Testing (Java -> Junit, C++ both CppUnitTestFramework and GTest)
+9. Encoding process example (String to number and back)
+10. Call back functionality (C++ traditional + std), Java -> Interface
+11. ASync execution requests
 
 ### Examples
 The examples files are specific implementation of some coding including ADT (Adavance Data Types) and both
@@ -36,5 +39,5 @@ Database being covered
 - SQLite
 - PostgresSQL
 
-## Comparison of memory structures
+### Comparison of memory structures
 
