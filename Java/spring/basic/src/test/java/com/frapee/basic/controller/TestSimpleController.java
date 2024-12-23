@@ -25,27 +25,28 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.frapee.basic.dto.SimpleDto;
 import com.frapee.basic.exceptions.GeneralServiceException;
-import com.frapee.basic.service.StringService;
+import com.frapee.basic.service.SimpleService;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-@WebMvcTest(PlainEntityController.class)
+@WebMvcTest(SimpleController.class)
 /**
  * Unit testing the controller part.
  * The service is being mocked (as created Bean) so that the controller can be tested independently
  * Mcv provides the client mocking for calling the controller
  */
-public class TestPlainEntityController {
+public class TestSimpleController {
 
-    private static final String PATH = "/plain_entity";
+    private static final String PATH = "/simple";
     private static final String HEADER_KEY = "Content-Type";
     
     @MockBean
-    private StringService service;
+    private SimpleService service;
 
     @Autowired
     private MockMvc mvc;
@@ -54,13 +55,13 @@ public class TestPlainEntityController {
 
     @Test
     public void testGetAll() throws Exception {
-        final List<String> setupData = List.of(
-                "apple",
-                "grape",
-                "orange",
-                "pear",
-                "peach",
-                "plum"
+        final List<SimpleDto> setupData = List.of(
+                new SimpleDto(1, "apple"),
+                new SimpleDto(2,"grape"),
+                new SimpleDto(3,"orange"),
+                new SimpleDto(4,"pear"),
+                new SimpleDto(5,"peach"),
+                new SimpleDto(6,"plum")
         );
         String expected = gson.toJson(setupData);
         when(service.getAll()).thenReturn(setupData);
@@ -78,7 +79,8 @@ public class TestPlainEntityController {
 
     @Test
     public void testGetOne() throws Exception {
-        final String setupData = "apple";
+        final SimpleDto setupData = new SimpleDto(1, "apple");
+        final String expected = gson.toJson(setupData);
         when(service.getOne(isA(Integer.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
@@ -88,13 +90,13 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
+        assertThat(result.getResponse().getContentAsString(), equalTo(expected));
         Mockito.verify(this.service, Mockito.times(1)).getOne(isA(Integer.class));
     }
 
     @Test
     public void testGetOneFail() throws Exception {
-        when(service.getOne(isA(Integer.class))).thenThrow(IndexOutOfBoundsException.class);
+        when(service.getOne(isA(Integer.class))).thenThrow(ResourceNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
@@ -111,19 +113,18 @@ public class TestPlainEntityController {
 
     @Test
     public void testSearch() throws Exception {
-        final List<String> setupData = List.of(
-                "apple",
-                "banana",
-                "grape",
-                "mango",
-                "nectarine",
-                "orange",
-                "pear",
-                "peach",
-                "pineapple",
-                "plum"
-                
-        );
+        final List<SimpleDto> setupData = List.of(
+                new SimpleDto(1, "apple"),
+                new SimpleDto(2,"banana"),
+                new SimpleDto(3,"grape"),
+                new SimpleDto(4,"mango"),
+                new SimpleDto(5,"nectarine"),
+                new SimpleDto(5,"orange"),
+                new SimpleDto(5,"pear"),
+                new SimpleDto(5,"peach"),
+                new SimpleDto(5,"pineapple"),
+                new SimpleDto(6,"plum")
+        );        
         String expected = gson.toJson(setupData);
         when(service.getAll()).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/search")
@@ -141,19 +142,18 @@ public class TestPlainEntityController {
 
     @Test
     public void testSearchWithPage() throws Exception {
-        final List<String> setupData = List.of(
-                "apple",
-                "banana",
-                "grape",
-                "mango",
-                "nectarine",
-                "orange",
-                "pear",
-                "peach",
-                "pineapple",
-                "plum"
-                
-        );
+        final List<SimpleDto> setupData = List.of(
+                new SimpleDto(1, "apple"),
+                new SimpleDto(2,"banana"),
+                new SimpleDto(3,"grape"),
+                new SimpleDto(4,"mango"),
+                new SimpleDto(5,"nectarine"),
+                new SimpleDto(5,"orange"),
+                new SimpleDto(5,"pear"),
+                new SimpleDto(5,"peach"),
+                new SimpleDto(5,"pineapple"),
+                new SimpleDto(6,"plum")
+        ); 
         String expected = gson.toJson(setupData.subList(0, 5));
         when(service.getAll()).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/search")
@@ -173,11 +173,12 @@ public class TestPlainEntityController {
 
     @Test
     public void testCreate() throws Exception {
-        String contentData = "apple";
-        Integer setupData = 1;
-        when(service.createOne(isA(String.class))).thenReturn(setupData);
+        final SimpleDto setupData = new SimpleDto(10, "coconut");
+        final String contentData = gson.toJson(setupData);
+        when(service.createOne(isA(SimpleDto.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isCreated())
             .andExpect(header().exists(HEADER_KEY))
@@ -185,16 +186,18 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(String.valueOf(setupData)));
-        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(String.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(String.valueOf(contentData)));
+        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(SimpleDto.class));
     }
 
     @Test
     public void testCreateFail() throws Exception {
-        String contentData = "apple";
-        when(service.createOne(isA(String.class))).thenThrow(IllegalArgumentException.class);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.createOne(isA(SimpleDto.class))).thenThrow(GeneralServiceException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(header().exists(HEADER_KEY))
@@ -204,16 +207,17 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(String.class));
+        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(SimpleDto.class));
     }
 
     @Test
     public void testUpdate() throws Exception {
-        String setupData = "coconut";
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenReturn(setupData);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(header().exists(HEADER_KEY))
@@ -221,16 +225,18 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(contentData));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
     public void testUpdateFailNoFound() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IndexOutOfBoundsException.class);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(ResourceNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(header().exists(HEADER_KEY))
@@ -240,15 +246,17 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
     public void testUpdateFailInvalidData() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IllegalArgumentException.class);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(GeneralServiceException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(header().exists(HEADER_KEY))
@@ -258,16 +266,17 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
     public void testPatch() throws Exception {
-        String setupData = "coconut";
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenReturn(setupData);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(header().exists(HEADER_KEY))
@@ -275,16 +284,18 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(contentData));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
     public void testPatchFailNoFound() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IndexOutOfBoundsException.class);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(ResourceNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(header().exists(HEADER_KEY))
@@ -294,15 +305,17 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
     public void testPatchFailInvalidData() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IllegalArgumentException.class);
+        SimpleDto setupData = new SimpleDto(10, "coconut");
+        String contentData = gson.toJson(setupData);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(GeneralServiceException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
             .content(contentData)
+            .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
             .andExpect(header().exists(HEADER_KEY))
@@ -312,7 +325,7 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(SimpleDto.class));
     }
 
     @Test
@@ -331,7 +344,7 @@ public class TestPlainEntityController {
 
     @Test
     public void testDeleteFail() throws Exception {
-        Mockito.doThrow(IndexOutOfBoundsException.class).when(service).deleteOne(isA(Integer.class));
+        Mockito.doThrow(ResourceNotFoundException.class).when(service).deleteOne(isA(Integer.class));
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())

@@ -3,17 +3,17 @@ package com.frapee.basic.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 
 import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.service.StringService;
@@ -28,13 +28,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping(path = "/plain_entity")
+@RequestMapping(path = "/plain")
 @RequiredArgsConstructor
 /**
- * Plain controller class but using ResponseEntity, the first controller being created
+ * Plain controller class, the first controller being created
  * will connect with partial service to demostrate usage
-  */
-public class PlainEntityController {
+ * it returns direct objects and get annotated with the status
+ */
+public class PlainController {
 
     @Autowired
     private StringService service;
@@ -45,10 +46,9 @@ public class PlainEntityController {
      * @param id - identifier for the entry, equal to the actual index
      * @return one string which was retrieved from the list
      */
-    public ResponseEntity<String> getOne(@PathVariable("id") int id) {
+    public String getOne(@PathVariable("id") int id) {
         try {
-        return ResponseEntity.ok()
-            .body(service.getOne(id));
+            return service.getOne(id);
         } catch (IndexOutOfBoundsException ex) {
             throw new ResourceNotFoundException("Out of bounds");
         }
@@ -59,9 +59,8 @@ public class PlainEntityController {
      * Retrieve entire list with no paging informatiom
      * @return the entire list
      */
-    public ResponseEntity<List<String>> getAll() {
-        return ResponseEntity.ok()
-            .body(service.getAll());
+    public List<String> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/search")
@@ -71,7 +70,7 @@ public class PlainEntityController {
      * @param size - how many entries the page will return
      * @return sublist containing search page
      */
-    public ResponseEntity<Page<String>> getSearch(@RequestParam(defaultValue = "0") int page, 
+    public Page<String> getSearch(@RequestParam(defaultValue = "0") int page, 
                     @RequestParam(defaultValue = "10") int size) {
         List<String> returned = service.getAll();
 
@@ -80,21 +79,19 @@ public class PlainEntityController {
         int endIndex = Math.min(startIndex + size, totalSize); 
 
         List<String> pageContent = returned.subList(startIndex, endIndex);
-        Page<String> body = new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
-        return ResponseEntity.ok()
-            .body(body);
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     /**
      * Create a string to go into the list, do check it string is not null or pre-existing
      * @param input - new string to go into list
      * @return Index number of where string was placed
      */
-    public ResponseEntity<Integer> createOne(@RequestBody String input) {
+    public Integer createOne(@RequestBody @Valid String input) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.createOne(input));
+            return service.createOne(input);
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new GeneralServiceException();
         }
@@ -107,10 +104,9 @@ public class PlainEntityController {
      * @param input - changed value string at index
      * @return General Response Entry with modified value
      */
-    public ResponseEntity<String> updateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
+    public String updateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
         try {
-            return ResponseEntity.ok()
-                .body(service.updateOne(id, input));
+            return service.updateOne(id, input);
         } catch (IndexOutOfBoundsException ex) {
             throw new ResourceNotFoundException("Out of bounds");
         } catch (IllegalArgumentException | NullPointerException ex) {
@@ -125,10 +121,9 @@ public class PlainEntityController {
      * @param input - changed value string at index
      * @return General Response Entry with modified value
      */
-    public ResponseEntity<String> partialUpdateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
+    public String partialUpdateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
         try {        
-            return ResponseEntity.ok()
-                .body(service.updateOne(id, input));
+            return service.updateOne(id, input);
         } catch (IndexOutOfBoundsException ex) {
             throw new ResourceNotFoundException("Out of bounds");
         } catch (IllegalArgumentException | NullPointerException ex) {
@@ -137,16 +132,15 @@ public class PlainEntityController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     /**
      * Remove a string at index from the list
      * @param id - identifier for the entry, equal to the actual index
      * @return General Response Entry containing no Content
      */
-    public ResponseEntity<?> deleteOne(@PathVariable("id") int id) {
+    public void deleteOne(@PathVariable("id") int id) {
         try {
             service.deleteOne(id);
-            return ResponseEntity.noContent()
-            .build();
         } catch (IndexOutOfBoundsException ex) {
             throw new ResourceNotFoundException("Out of bounds");
         }

@@ -33,15 +33,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-@WebMvcTest(PlainEntityController.class)
+@WebMvcTest(PlainController.class)
 /**
  * Unit testing the controller part.
  * The service is being mocked (as created Bean) so that the controller can be tested independently
  * Mcv provides the client mocking for calling the controller
  */
-public class TestPlainEntityController {
+public class TestPlainController {
 
-    private static final String PATH = "/plain_entity";
+    private static final String PATH = "/plain";
     private static final String HEADER_KEY = "Content-Type";
     
     @MockBean

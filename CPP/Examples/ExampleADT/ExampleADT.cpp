@@ -159,6 +159,6 @@ int main() {
     const auto end{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds{ end - start };
     // requires c++ 20 for this line
-     //std::cout << "Program run for " << elapsed_seconds << '\n';
+    std::cout << "Program run for " << elapsed_seconds << '\n';
     return 0;
 }

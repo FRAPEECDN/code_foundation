@@ -7,12 +7,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode
 /**
  * Entity (store class) to support simple data (Giving the string just a name and add an id)
@@ -36,7 +38,7 @@ public class SimpleEntity {
     private int id;
 
     @Column(name = "name", nullable = false, length = MAX_FIELD_LENGTH)
-    @Max(value = MAX_FIELD_LENGTH)
+    @Size(max = MAX_FIELD_LENGTH)
     @NotNull(message = "Name cannot be null")
     private String name;
 

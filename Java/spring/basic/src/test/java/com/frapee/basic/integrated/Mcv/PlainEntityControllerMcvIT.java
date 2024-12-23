@@ -41,7 +41,7 @@ import com.google.gson.JsonParser;
  */
 public class PlainEntityControllerMcvIT {
 
-    private static final String PATH = "/plain";
+    private static final String PATH = "/plain_entity";
     private static final String HEADER_KEY = "Content-Type";
     
     @Autowired

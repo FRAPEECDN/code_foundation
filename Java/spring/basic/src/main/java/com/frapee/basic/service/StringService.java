@@ -79,7 +79,7 @@ public class StringService {
      * @return modified string
      */
     public String updateOne(int idx, @Nullable String newValue)  {
-        log.info("Chaning an item at index with new value");
+        log.info("Changing an item at index with new value");
         if (newValue == null) {
             throw new NullPointerException();
         }
