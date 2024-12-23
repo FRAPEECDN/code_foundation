@@ -20,56 +20,69 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.frapee.basic.service.StringService;
+import com.frapee.basic.dto.SimpleDto;
+import com.frapee.basic.repository.SimpleRepository;
+import com.frapee.basic.service.SimpleService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PlainEnityControllerRestTemplateIT {
+public class SimpleControllerRestTemplateIT {
 
-    private static final String PATH = "/plain_entity";
+    private static final String PATH = "/simple";
 
     @Autowired
-    private StringService service;
+    private SimpleService service;
+
+    @Autowired
+    private SimpleRepository repository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
     int randomServerPort;    
  
     @BeforeEach
     private void setupBaseData() {
-        service.resetRepositoryList();
-        final List<String> setupData = List.of(
-                "apple",
-                "banana",
-                "grape",
-                "mango",
-                "nectarine",
-                "orange",
-                "pear",
-                "peach",
-                "pineapple",
-                "plum"
-                
+        final List<SimpleDto> setupData = List.of(
+            new SimpleDto(0, "apple"),
+            new SimpleDto(0, "banana"),
+            new SimpleDto(0, "grape"),
+            new SimpleDto(0, "mango"),
+            new SimpleDto(0, "nectarine"),
+            new SimpleDto(0, "orange"),
+            new SimpleDto(0, "pear"),
+            new SimpleDto(0, "peach"),
+            new SimpleDto(0, "pineapple"),
+            new SimpleDto(0, "plum")
         );
-        service.setInternalStrings(setupData);
+        
+        for (SimpleDto setup : setupData) {
+            String insertSql = "INSERT INTO simple (name) VALUES (?)";
+            jdbcTemplate.update(insertSql, setup.name());
+        }
     }
 
     @AfterEach
     private void cleanupData() {
-        service.resetRepositoryList();
+        String deleteSql = "DELETE FROM simple";
+        jdbcTemplate.execute(deleteSql);
     }
 
     @Test
+    @DirtiesContext
     public void testGetAll() throws Exception {
         final RestTemplate restTemplate = new RestTemplate();
-        final ResponseEntity<List<String>> response = restTemplate.exchange(
+        final ResponseEntity<List<SimpleDto>> response = restTemplate.exchange(
             generatePath(),
             HttpMethod.GET,
             null,
-            new ParameterizedTypeReference<List<String>>(){}
+            new ParameterizedTypeReference<List<SimpleDto>>(){}
         );
 
         assertThat(response, notNullValue());
@@ -78,14 +91,15 @@ public class PlainEnityControllerRestTemplateIT {
     }
 
     @Test
+    @DirtiesContext
     public void testGetOne() throws Exception {
-        String expected = service.getOne(1);
+        SimpleDto expected = service.getOne(1);
         final RestTemplate restTemplate = new RestTemplate();
-        final ResponseEntity<String> response = restTemplate.exchange(
+        final ResponseEntity<SimpleDto> response = restTemplate.exchange(
             generatePath() + "/1",
             HttpMethod.GET,
             null,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
 
         assertThat(response, notNullValue());
@@ -94,6 +108,7 @@ public class PlainEnityControllerRestTemplateIT {
     }
 
     @Test
+    @DirtiesContext
     public void testGetOneFail() throws Exception {
         final RestTemplate restTemplate = new RestTemplate();
         try {
@@ -101,7 +116,7 @@ public class PlainEnityControllerRestTemplateIT {
             generatePath() + "/10",
             HttpMethod.GET,
             null,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         } catch (HttpClientErrorException exc) {
            assertThat(exc.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
@@ -109,116 +124,101 @@ public class PlainEnityControllerRestTemplateIT {
     }
 
     @Test
+    @DirtiesContext
     @SuppressWarnings("null")
     public void testSearch() throws Exception {
-        final List<String> expected = service.getAll();
+        final List<SimpleDto> expected = service.getAll();
         final RestTemplate restTemplate = new RestTemplate();
-        final ResponseEntity<PagedModel<String>> response = restTemplate.exchange(
+        final ResponseEntity<PagedModel<SimpleDto>> response = restTemplate.exchange(
             generatePath() + "/search",
             HttpMethod.GET,
             null,
-            new ParameterizedTypeReference<PagedModel<String>>(){}
+            new ParameterizedTypeReference<PagedModel<SimpleDto>>(){}
         );
         
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        final PagedModel<String> pageBody = response.getBody();
+        final PagedModel<SimpleDto> pageBody = response.getBody();
         assertThat(pageBody, notNullValue());
         assertThat(pageBody.getContent(), notNullValue());
-        final List<String> actual = pageBody.getContent().stream().toList();
+        final List<SimpleDto> actual = pageBody.getContent().stream().toList();
         assertThat(actual, equalTo(expected));
     }
 
     @Test
+    @DirtiesContext
     @SuppressWarnings("null")
     public void testSearchWithPage() throws Exception {
-        final List<String> expected = service.getAll().subList(0, 5);
+        final List<SimpleDto> expected = service.getAll().subList(0, 5);
         final RestTemplate restTemplate = new RestTemplate();
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(generatePath() + "/search")
             .queryParam("page", "0")
             .queryParam("size", "5");
 
-        final ResponseEntity<PagedModel<String>> response = restTemplate.exchange(
+        final ResponseEntity<PagedModel<SimpleDto>> response = restTemplate.exchange(
             builder.toUriString(),
             HttpMethod.GET,
             null,
-            new ParameterizedTypeReference<PagedModel<String>>(){}
+            new ParameterizedTypeReference<PagedModel<SimpleDto>>(){}
         );
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        final PagedModel<String> pageBody = response.getBody();
+        final PagedModel<SimpleDto> pageBody = response.getBody();
         assertThat(pageBody, notNullValue());
         assertThat(pageBody.getContent(), notNullValue());
-        final List<String> actual = pageBody.getContent().stream().toList();
+        final List<SimpleDto> actual = pageBody.getContent().stream().toList();
         assertThat(actual, equalTo(expected));
     }
 
     @Test
+    @DirtiesContext
     public void testCreate() throws Exception {
-        String contentData = "coconut";
-        Integer expected = 10;
+        SimpleDto contentData = new SimpleDto(11, "coconut");
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders httpHeaders = new HttpHeaders();
-        final HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
-        final ResponseEntity<Integer> response = restTemplate.exchange(
+        final HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
+        final ResponseEntity<SimpleDto> response = restTemplate.exchange(
             generatePath(),
             HttpMethod.POST,
             httpEntity,
-            new ParameterizedTypeReference<Integer>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.CREATED));
-        assertThat(response.getBody(), equalTo(expected));
+        assertThat(response.getBody(), equalTo(contentData));
     }
 
     @Test
-    public void testCreateFail() throws Exception {
-        String contentData = "apple";
-        final RestTemplate restTemplate = new RestTemplate();
-        final HttpHeaders httpHeaders = new HttpHeaders();
-        final HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);           
-        try {
-            restTemplate.exchange(
-            generatePath(),
-            HttpMethod.POST,
-            httpEntity,
-            new ParameterizedTypeReference<String>(){}
-        );
-        } catch (HttpServerErrorException exc) {
-           assertThat(exc.getStatusCode(), equalTo(HttpStatus.INTERNAL_SERVER_ERROR));
-        }
-    }
-
-    @Test
+    @DirtiesContext
     public void testUpdate() throws Exception {
-        String contentData = "coconut";
-        String expected = contentData;
+        SimpleDto contentData = new SimpleDto(1, "coconut");
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders httpHeaders = new HttpHeaders();
-        final HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
-        final ResponseEntity<String> response = restTemplate.exchange(
+        final HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
+        final ResponseEntity<SimpleDto> response = restTemplate.exchange(
             generatePath() + "/1",
             HttpMethod.PUT,
             httpEntity,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        assertThat(response.getBody(), equalTo(expected));        
+        assertThat(response.getBody(), equalTo(contentData));        
     }
 
     @Test
+    @DirtiesContext
     public void testUpdateFailNoFound() throws Exception {
-        String contentData = "coconut";
+        SimpleDto contentData = new SimpleDto(10, "coconut");
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders httpHeaders = new HttpHeaders();
-        final HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
+        final HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
         try {
             restTemplate.exchange(
             generatePath() + "/10",
             HttpMethod.PUT,
             httpEntity,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         } catch (HttpClientErrorException exc) {
            assertThat(exc.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
@@ -226,35 +226,36 @@ public class PlainEnityControllerRestTemplateIT {
     }
 
     @Test
+    @DirtiesContext
     public void testPatch() throws Exception {
-        String contentData = "coconut";
-        String expected = contentData;
+        SimpleDto contentData = new SimpleDto(1, "coconut");
         final RestTemplate restTemplate = new RestTemplate(new JdkClientHttpRequestFactory());
         final HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
-        final ResponseEntity<String> response = restTemplate.exchange(
+        HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
+        final ResponseEntity<SimpleDto> response = restTemplate.exchange(
             generatePath() + "/1",
             HttpMethod.PATCH,
             httpEntity,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        assertThat(response.getBody(), equalTo(expected)); 
+        assertThat(response.getBody(), equalTo(contentData)); 
     }
 
     @Test
+    @DirtiesContext
     public void testPatchFailNoFound() throws Exception {
-        String contentData = "coconut";
+        SimpleDto contentData = new SimpleDto(10, "coconut");
         final RestTemplate restTemplate = new RestTemplate(new JdkClientHttpRequestFactory());
         final HttpHeaders httpHeaders = new HttpHeaders();
-        final HttpEntity<String> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
+        final HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
         try {
             restTemplate.exchange(
             generatePath() + "/10",
             HttpMethod.PATCH,
             httpEntity,
-            new ParameterizedTypeReference<String>(){}
+            new ParameterizedTypeReference<SimpleDto>(){}
         );
         } catch (HttpClientErrorException exc) {
            assertThat(exc.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
@@ -262,6 +263,7 @@ public class PlainEnityControllerRestTemplateIT {
     }
 
     @Test
+    @DirtiesContext
     public void testDelete() throws Exception {
         final RestTemplate restTemplate = new RestTemplate();
         final ResponseEntity<Object> response = restTemplate.exchange(
@@ -275,6 +277,7 @@ public class PlainEnityControllerRestTemplateIT {
     }    
 
     @Test
+    @DirtiesContext
     public void testDeleteFail() throws Exception {
         final RestTemplate restTemplate = new RestTemplate();
         try {
@@ -283,10 +286,10 @@ public class PlainEnityControllerRestTemplateIT {
                 HttpMethod.DELETE,
                 null,
                 new ParameterizedTypeReference<Object>(){}
-            );    
+            );
         } catch (HttpClientErrorException exc) {
             assertThat(exc.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
-        }
+        }      
     }
 
     /**

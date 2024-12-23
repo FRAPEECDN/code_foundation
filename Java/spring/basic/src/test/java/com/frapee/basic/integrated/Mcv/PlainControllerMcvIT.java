@@ -1,7 +1,5 @@
-package com.frapee.basic.controller;
+package com.frapee.basic.integrated.Mcv;
 
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,11 +11,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,18 +32,19 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-@WebMvcTest(PlainEntityController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 /**
- * Unit testing the controller part.
- * The service is being mocked (as created Bean) so that the controller can be tested independently
+ * Integrated Testing for the Controller
+ * The service and other components is the actual components
  * Mcv provides the client mocking for calling the controller
  */
-public class TestPlainEntityController {
+public class PlainControllerMcvIT {
 
-    private static final String PATH = "/plain_entity";
+    private static final String PATH = "/plain";
     private static final String HEADER_KEY = "Content-Type";
     
-    @MockBean
+    @Autowired
     private StringService service;
 
     @Autowired
@@ -52,65 +52,9 @@ public class TestPlainEntityController {
 
     private Gson gson = new Gson();
 
-    @Test
-    public void testGetAll() throws Exception {
-        final List<String> setupData = List.of(
-                "apple",
-                "grape",
-                "orange",
-                "pear",
-                "peach",
-                "plum"
-        );
-        String expected = gson.toJson(setupData);
-        when(service.getAll()).thenReturn(setupData);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
-                    .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists(HEADER_KEY))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-                    .andReturn();
-
-        assertThat(result.getResponse().getContentAsString(), equalTo(expected));
-        Mockito.verify(this.service, Mockito.times(1)).getAll();
-    }
-
-    @Test
-    public void testGetOne() throws Exception {
-        final String setupData = "apple";
-        when(service.getOne(isA(Integer.class))).thenReturn(setupData);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andReturn();
-
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
-        Mockito.verify(this.service, Mockito.times(1)).getOne(isA(Integer.class));
-    }
-
-    @Test
-    public void testGetOneFail() throws Exception {
-        when(service.getOne(isA(Integer.class))).thenThrow(IndexOutOfBoundsException.class);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
-            .andReturn();
-
-        assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).getOne(isA(Integer.class));
-    }
-
-
-    @Test
-    public void testSearch() throws Exception {
+    @BeforeEach
+    private void setupBaseData() {
+        service.resetRepositoryList();
         final List<String> setupData = List.of(
                 "apple",
                 "banana",
@@ -124,8 +68,60 @@ public class TestPlainEntityController {
                 "plum"
                 
         );
-        String expected = gson.toJson(setupData);
-        when(service.getAll()).thenReturn(setupData);
+        service.setInternalStrings(setupData);
+    }
+
+    @AfterEach
+    private void cleanupData() {
+        service.resetRepositoryList();
+    }
+
+    @Test
+    public void testGetAll() throws Exception {
+        String expected = gson.toJson(service.getAll());
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(header().exists(HEADER_KEY))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+                    .andReturn();
+
+        assertThat(result.getResponse().getContentAsString(), equalTo(expected));
+    }
+
+    @Test
+    public void testGetOne() throws Exception {
+        String setupData = service.getOne(1);
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(header().exists(HEADER_KEY))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
+            .andReturn();
+
+        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
+    }
+
+    @Test
+    public void testGetOneFail() throws Exception {
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "-1")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(header().exists(HEADER_KEY))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andReturn();
+
+        assertThat(result.getResponse().getContentAsString(), notNullValue());
+    }
+
+
+    @Test
+    public void testSearch() throws Exception {
+        String expected = gson.toJson(service.getAll());
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/search")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -136,26 +132,11 @@ public class TestPlainEntityController {
 
         String actual = extractJson(result.getResponse().getContentAsString());
         assertThat(actual, equalTo(expected));
-        Mockito.verify(this.service, Mockito.times(1)).getAll();
     }
 
     @Test
     public void testSearchWithPage() throws Exception {
-        final List<String> setupData = List.of(
-                "apple",
-                "banana",
-                "grape",
-                "mango",
-                "nectarine",
-                "orange",
-                "pear",
-                "peach",
-                "pineapple",
-                "plum"
-                
-        );
-        String expected = gson.toJson(setupData.subList(0, 5));
-        when(service.getAll()).thenReturn(setupData);
+        String expected = gson.toJson(service.getAll().subList(0, 5));
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/search")
             .param("page", "0")
             .param("size", "5")
@@ -168,14 +149,12 @@ public class TestPlainEntityController {
 
         String actual = extractJson(result.getResponse().getContentAsString());
         assertThat(actual, equalTo(expected));        
-        Mockito.verify(this.service, Mockito.times(1)).getAll();
     }
 
     @Test
     public void testCreate() throws Exception {
-        String contentData = "apple";
-        Integer setupData = 1;
-        when(service.createOne(isA(String.class))).thenReturn(setupData);
+        String contentData = "coconut";
+        Integer setupData = 10;
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
@@ -186,13 +165,11 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), equalTo(String.valueOf(setupData)));
-        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(String.class));
     }
 
     @Test
     public void testCreateFail() throws Exception {
         String contentData = "apple";
-        when(service.createOne(isA(String.class))).thenThrow(IllegalArgumentException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
@@ -204,14 +181,12 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).createOne(isA(String.class));
     }
 
     @Test
     public void testUpdate() throws Exception {
-        String setupData = "coconut";
+
         String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
@@ -221,15 +196,13 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(contentData));
     }
 
     @Test
     public void testUpdateFailNoFound() throws Exception {
         String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IndexOutOfBoundsException.class);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "-1")
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
@@ -240,32 +213,11 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
-    }
-
-    @Test
-    public void testUpdateFailInvalidData() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IllegalArgumentException.class);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
-            .content(contentData)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof GeneralServiceException))
-            .andReturn();
-
-        assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
     }
 
     @Test
     public void testPatch() throws Exception {
-        String setupData = "coconut";
         String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenReturn(setupData);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
@@ -275,15 +227,13 @@ public class TestPlainEntityController {
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
             .andReturn();
 
-        assertThat(result.getResponse().getContentAsString(), equalTo(setupData));
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
+        assertThat(result.getResponse().getContentAsString(), equalTo(contentData));
     }
 
     @Test
     public void testPatchFailNoFound() throws Exception {
         String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IndexOutOfBoundsException.class);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "-1")
             .content(contentData)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
@@ -294,30 +244,10 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
-    }
-
-    @Test
-    public void testPatchFailInvalidData() throws Exception {
-        String contentData = "coconut";
-        when(service.updateOne(isA(Integer.class), isA(String.class))).thenThrow(IllegalArgumentException.class);
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
-            .content(contentData)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof GeneralServiceException))
-            .andReturn();
-
-        assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).updateOne(isA(Integer.class), isA(String.class));
     }
 
     @Test
     public void testDelete() throws Exception {
-        Mockito.doNothing().when(service).deleteOne(isA(Integer.class));
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent())
@@ -326,13 +256,11 @@ public class TestPlainEntityController {
 
         assertThat(result.getResponse().getContentType(), nullValue());
         assertThat(result.getResponse().getContentAsByteArray().length, equalTo(0));
-        Mockito.verify(this.service, Mockito.times(1)).deleteOne(isA(Integer.class));
     }    
 
     @Test
     public void testDeleteFail() throws Exception {
-        Mockito.doThrow(IndexOutOfBoundsException.class).when(service).deleteOne(isA(Integer.class));
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "1")
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "-1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(header().exists(HEADER_KEY))
@@ -342,7 +270,6 @@ public class TestPlainEntityController {
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
-        Mockito.verify(this.service, Mockito.times(1)).deleteOne(isA(Integer.class));
     }
 
     /**

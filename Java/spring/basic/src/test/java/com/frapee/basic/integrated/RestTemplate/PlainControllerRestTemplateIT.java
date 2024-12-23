@@ -28,9 +28,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.frapee.basic.service.StringService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PlainEnityControllerRestTemplateIT {
+public class PlainControllerRestTemplateIT {
 
-    private static final String PATH = "/plain_entity";
+    private static final String PATH = "/plain";
 
     @Autowired
     private StringService service;
@@ -283,10 +283,10 @@ public class PlainEnityControllerRestTemplateIT {
                 HttpMethod.DELETE,
                 null,
                 new ParameterizedTypeReference<Object>(){}
-            );    
+            );
         } catch (HttpClientErrorException exc) {
             assertThat(exc.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
-        }
+        }      
     }
 
     /**
