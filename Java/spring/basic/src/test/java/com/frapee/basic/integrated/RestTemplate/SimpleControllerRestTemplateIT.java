@@ -27,7 +27,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.frapee.basic.dto.SimpleDto;
-import com.frapee.basic.repository.SimpleRepository;
 import com.frapee.basic.service.SimpleService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -37,9 +36,6 @@ public class SimpleControllerRestTemplateIT {
 
     @Autowired
     private SimpleService service;
-
-    @Autowired
-    private SimpleRepository repository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

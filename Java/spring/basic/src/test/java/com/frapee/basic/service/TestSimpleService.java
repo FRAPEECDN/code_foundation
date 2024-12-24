@@ -19,10 +19,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 
 import com.frapee.basic.dto.SimpleDto;
 import com.frapee.basic.entities.SimpleEntity;
+import com.frapee.basic.exceptions.EntityNotFoundException;
 import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.repository.SimpleRepository;
 
@@ -111,7 +111,7 @@ public class TestSimpleService {
     @Test
     public void testGetOneFail() {
         when(testRepository.findById(isA(Integer.class))).thenReturn(Optional.empty());
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
             testService.getOne(10);
         });
         assertThat(exception.getMessage(), not(blankOrNullString()));
@@ -129,7 +129,7 @@ public class TestSimpleService {
     @Test
     public void testUpdateFail() {
         when(testRepository.findById(isA(Integer.class))).thenReturn(Optional.empty());
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
             testService.updateOne(10, new SimpleDto(10, "Coconut"));
         });
         assertThat(exception.getMessage(), not(blankOrNullString()));
@@ -148,7 +148,7 @@ public class TestSimpleService {
     @Test
     public void testDeleteFail() {
         when(testRepository.findById(isA(Integer.class))).thenReturn(Optional.empty());
-        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
             testService.deleteOne(10);
         });
         assertThat(exception.getMessage(), not(blankOrNullString()));

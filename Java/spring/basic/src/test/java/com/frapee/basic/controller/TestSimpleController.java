@@ -18,7 +18,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.frapee.basic.dto.SimpleDto;
+import com.frapee.basic.exceptions.EntityNotFoundException;
 import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.service.SimpleService;
 import com.google.gson.Gson;
@@ -96,14 +96,14 @@ public class TestSimpleController {
 
     @Test
     public void testGetOneFail() throws Exception {
-        when(service.getOne(isA(Integer.class))).thenThrow(ResourceNotFoundException.class);
+        when(service.getOne(isA(Integer.class))).thenThrow(EntityNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -233,7 +233,7 @@ public class TestSimpleController {
     public void testUpdateFailNoFound() throws Exception {
         SimpleDto setupData = new SimpleDto(10, "coconut");
         String contentData = gson.toJson(setupData);
-        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(ResourceNotFoundException.class);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(EntityNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content(contentData)
             .contentType(MediaType.APPLICATION_JSON)
@@ -242,7 +242,7 @@ public class TestSimpleController {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -292,7 +292,7 @@ public class TestSimpleController {
     public void testPatchFailNoFound() throws Exception {
         SimpleDto setupData = new SimpleDto(10, "coconut");
         String contentData = gson.toJson(setupData);
-        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(ResourceNotFoundException.class);
+        when(service.updateOne(isA(Integer.class), isA(SimpleDto.class))).thenThrow(EntityNotFoundException.class);
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.patch(PATH + "/{id}", "1")
             .content(contentData)
             .contentType(MediaType.APPLICATION_JSON)
@@ -301,7 +301,7 @@ public class TestSimpleController {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -344,14 +344,14 @@ public class TestSimpleController {
 
     @Test
     public void testDeleteFail() throws Exception {
-        Mockito.doThrow(ResourceNotFoundException.class).when(service).deleteOne(isA(Integer.class));
+        Mockito.doThrow(EntityNotFoundException.class).when(service).deleteOne(isA(Integer.class));
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "1")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());

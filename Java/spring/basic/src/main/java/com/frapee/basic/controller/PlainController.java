@@ -12,12 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 
+import com.frapee.basic.exceptions.EntityNotFoundException;
 import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.service.StringService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping(path = "/plain")
 @RequiredArgsConstructor
+@Tag(name = "Plain Example", description = "Plain Example controller API")
 /**
  * Plain controller class, the first controller being created
  * will connect with partial service to demostrate usage
@@ -41,21 +50,33 @@ public class PlainController {
     private StringService service;
 
     @GetMapping(value = "/{id}")
+    @Operation(summary = "Read a example item", description = "Read example item by index(id).", operationId="readexample")
+    @ApiResponses(value = { 
+            @ApiResponse(responseCode = "200", description = "OK"), 
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     /**
      * Retrieve one entry from the list
      * @param id - identifier for the entry, equal to the actual index
      * @return one string which was retrieved from the list
      */
-    public String getOne(@PathVariable("id") int id) {
+    public String getOne(@Parameter(description = "Index of example", example="1", required=true) 
+                          @PathVariable("id") int id) {
         try {
             return service.getOne(id);
         } catch (IndexOutOfBoundsException ex) {
-            throw new ResourceNotFoundException("Out of bounds");
+            throw new EntityNotFoundException();
         }
     }
 
     @GetMapping
-    /**
+    @Operation(summary = "Read example item list", description = "Read all of the example items", operationId="allexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
+/**
      * Retrieve entire list with no paging informatiom
      * @return the entire list
      */
@@ -64,14 +85,21 @@ public class PlainController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Search for example item list", description = "Pagable search for retrieving paged item lists.", operationId="searchexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     /**
      * Return part of the list, which is selected by providing paging information, page will start as 0
      * @param page - the actual page number requested
      * @param size - how many entries the page will return
-     * @return sublist containing search page
+     * @return sublist containing search page with strings
      */
-    public Page<String> getSearch(@RequestParam(defaultValue = "0") int page, 
-                    @RequestParam(defaultValue = "10") int size) {
+    public Page<String> getSearch(@Parameter(description = "Current Page", example="1") 
+                                   @RequestParam(defaultValue = "0") int page,
+                                  @Parameter(description = "Page size", example="10")
+                                   @RequestParam(defaultValue = "10") int size) {
         List<String> returned = service.getAll();
 
         int totalSize = returned.size();
@@ -83,13 +111,23 @@ public class PlainController {
     }
 
     @PostMapping
+    @Operation(summary = "Create example item", description = "Create new item in the list.", operationId="createexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     @ResponseStatus(HttpStatus.CREATED)
     /**
      * Create a string to go into the list, do check it string is not null or pre-existing
      * @param input - new string to go into list
      * @return Index number of where string was placed
      */
-    public Integer createOne(@RequestBody @Valid String input) {
+    public Integer createOne(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Item to create", required = true,
+            content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = String.class),
+                        examples = @ExampleObject(value = "coconut")))
+            @RequestBody @Valid String input) {
         try {
             return service.createOne(input);
         } catch (IllegalArgumentException | NullPointerException ex) {
@@ -98,34 +136,60 @@ public class PlainController {
     }
 
     @PutMapping(value = "/{id}")
+    @Operation(summary = "Update example item", description = "Update item in the list where index indicate.", operationId="updateexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     /**
      * Update a string in the list to become something else, it does check if the new string values already exists
      * @param id - identifier for the entry, equal to the actual index
      * @param input - changed value string at index
-     * @return General Response Entry with modified value
+     * @return Modified string 
      */
-    public String updateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
+    public String updateOne(@Parameter(description = "Index of example", example="1", required=true) 
+                             @PathVariable("id") int id,
+                             @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                description = "Item to update", required = true,
+                                content = @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = String.class),
+                                            examples = @ExampleObject(value = "coconut")))                             
+                @Valid @RequestBody String input) {
         try {
             return service.updateOne(id, input);
         } catch (IndexOutOfBoundsException ex) {
-            throw new ResourceNotFoundException("Out of bounds");
+            throw new EntityNotFoundException();
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new GeneralServiceException();
         }
     }
 
     @PatchMapping(value = "/{id}")
+    @Operation(summary = "Partial update example item", description = "Update item in the list where index indicate (as partial).", operationId="partialupdateexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     /**
      * Update the string in the list, this is same as update but provide example for the partial will look
      * @param id - identifier for the entry, equal to the actual index
      * @param input - changed value string at index
-     * @return General Response Entry with modified value
+     * @return Modified string
      */
-    public String partialUpdateOne(@PathVariable("id") int id, @Valid @RequestBody String input) {
+    public String partialUpdateOne(@Parameter(description = "Index of example", example="1", required=true) 
+                                    @PathVariable("id") int id, 
+                                   @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                        description = "Item to partialy update", required = true,
+                                        content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class),
+                                                    examples = @ExampleObject(value = "coconut")))                                    
+                                    @Valid @RequestBody String input) {
         try {        
             return service.updateOne(id, input);
         } catch (IndexOutOfBoundsException ex) {
-            throw new ResourceNotFoundException("Out of bounds");
+            throw new EntityNotFoundException();
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new GeneralServiceException();
         }            
@@ -133,16 +197,22 @@ public class PlainController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete example item", description = "Delete item in the list where index indicate.", operationId="deleteexample")
+    @ApiResponses(value = { 
+        @ApiResponse(responseCode = "200", description = "OK"), 
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })    
     /**
      * Remove a string at index from the list
      * @param id - identifier for the entry, equal to the actual index
-     * @return General Response Entry containing no Content
      */
-    public void deleteOne(@PathVariable("id") int id) {
+    public void deleteOne(@Parameter(description = "Index of example", example="1", required=true) 
+                           @PathVariable("id") int id) {
         try {
             service.deleteOne(id);
         } catch (IndexOutOfBoundsException ex) {
-            throw new ResourceNotFoundException("Out of bounds");
+            throw new EntityNotFoundException();
         }
     }
 
