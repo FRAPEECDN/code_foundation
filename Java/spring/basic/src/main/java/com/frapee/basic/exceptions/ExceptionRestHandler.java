@@ -1,6 +1,5 @@
 package com.frapee.basic.exceptions;
 
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class ExceptionRestHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, responseBody, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(value = {ResourceNotFoundException.class})
+    @ExceptionHandler(value = {EntityNotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(RuntimeException ex, WebRequest request) {
         String reponseBody = "Request resource not found";
         return handleExceptionInternal(ex, reponseBody, new HttpHeaders(), HttpStatus.NOT_FOUND, request);

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -27,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.frapee.basic.dto.SimpleDto;
+import com.frapee.basic.exceptions.EntityNotFoundException;
 import com.frapee.basic.repository.SimpleRepository;
 import com.frapee.basic.service.SimpleService;
 import com.google.gson.Gson;
@@ -128,7 +128,7 @@ public class SimpleControllerMcvIT {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -218,7 +218,7 @@ public class SimpleControllerMcvIT {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -255,7 +255,7 @@ public class SimpleControllerMcvIT {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());
@@ -283,7 +283,7 @@ public class SimpleControllerMcvIT {
             .andExpect(header().exists(HEADER_KEY))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof ResourceNotFoundException))
+            .andExpect(expected -> assertTrue(expected.getResolvedException() instanceof EntityNotFoundException))
             .andReturn();
 
         assertThat(result.getResponse().getContentAsString(), notNullValue());

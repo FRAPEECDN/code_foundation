@@ -7,11 +7,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.frapee.basic.dto.SimpleDto;
 import com.frapee.basic.entities.SimpleEntity;
+import com.frapee.basic.exceptions.EntityNotFoundException;
 import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.repository.SimpleRepository;
 
@@ -54,7 +54,7 @@ public class SimpleService {
         if (result.isPresent()) {
             return new SimpleDto(result.get().getId(), result.get().getName());
         } else {
-            throw new ResourceNotFoundException();
+            throw new EntityNotFoundException();
         }
     }
 
@@ -91,7 +91,7 @@ public class SimpleService {
         }
         Optional<SimpleEntity> lookup = repository.findById(id);
         if (!lookup.isPresent()) {
-            throw new ResourceNotFoundException();
+            throw new EntityNotFoundException();
         }
         SimpleEntity changedEntity = new SimpleEntity(newValue.id(), newValue.name());
         SimpleEntity result;
@@ -113,7 +113,7 @@ public class SimpleService {
         if (lookup.isPresent()) {
             repository.delete(lookup.get());
         } else {
-            throw new ResourceNotFoundException();
+            throw new EntityNotFoundException();
         }
     }
 
