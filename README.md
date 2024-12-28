@@ -30,7 +30,7 @@ The examples are
 - Console application for input and output, with input validation
 - File input and output - Includes regular expression and remapping
 - Use of regular expressions
-- Simple mapping of values
+- Simple mapping of values (Using mapping collection)
 
 ### Database Examples
 The examples for database interaction using C++ and Java has been added. C++ uses direct libraries and Java uses JDBC DataSource with prepared statements.
@@ -38,6 +38,13 @@ Note there is readme files for C++ due to installation work that is required
 Database being covered
 - SQLite
 - PostgresSQL
+
+### Java -> Spring
+The example of the Spring Boot Framework to provide some foundational implementation
+- Controllers, Services, Repositories, Entities and Dto 
+- JPA (HyperSQL, PostgresSQL) - In memory and Containers
+- Basic Authentication and security handling
+- See Readme files for more information
 
 ### Comparison of memory structures
 
