@@ -12,15 +12,14 @@ Java 21 is used for Java version
 - The database can run either as container or in-memory for Integrated Tests
 
 ## Security
-- Should have no security use example
-- Should have basic login example
-- Should have at some point JWT token example
+- The JPA demos (basic and basic-postgres), will be running with no security
+- securityDemo will use Basic Authorization
+- JwtsecurityDemo will use JWT Token security
 
 ## Application Cnfigurations
-Have example of both
-- application.properties
-- yml files for settings
-- profiles should be in use for some examples
+- The JPA demos (basic and basic-postgres) and security demos will just use application.properties
+- BasicWithSecurity will also yml file for settings
+- basic-prostgres and BasicWithSecurity will use Spring Profiles
 
 ## Running server
 OpenAPI 3.0 with UI should be active for all foundational examples
