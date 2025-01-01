@@ -21,8 +21,9 @@ public class ConfigSecurity {
 	public UserDetailsService userDetailsService() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		manager.createUser(User.withDefaultPasswordEncoder().username("bla").password("password").build());
-		manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
+		manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER") .build());
         manager.createUser(User.withDefaultPasswordEncoder().username("admin").password("password").roles("ADMIN").build());
+		manager.createUser(User.withDefaultPasswordEncoder().username("author").password("password").authorities("ROLE_USER", "AUTHOR").build());
 		return manager;
 	}
 
@@ -42,6 +43,8 @@ public class ConfigSecurity {
 				.hasRole("USER")
 				.requestMatchers("/admin/**")
 				.hasRole("ADMIN")
+				.requestMatchers("/author/**")
+				.hasAnyAuthority("AUTHOR")
 				.requestMatchers("/v3/**","/swagger-ui/**")
 				.authenticated()
                 .requestMatchers("/public/**")

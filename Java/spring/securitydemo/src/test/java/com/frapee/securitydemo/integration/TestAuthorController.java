@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,98 +17,61 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.frapee.securitydemo.controller.PublicController;
+import com.frapee.securitydemo.controller.AuthorController;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class TestPublicController {
+public class TestAuthorController {
 
-    private static final String PATH = "/public";
+    private static final String PATH = "/author";
     private static final String HEADER_KEY = "Content-Type";
 
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mvc;    
+
+    @Test
+    @WithMockUser(authorities = {"AUTHOR"}, roles={"USER"})
+    public void testGetAsUser() throws Exception {
+        String expected = AuthorController.MESSAGE;
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(header().exists(HEADER_KEY))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andReturn();
+
+        assertEquals(expected, result.getResponse().getContentAsString());
+    }
     
     @Test
     @WithMockUser(roles={"ADMIN"})
     public void testGetAsAdmin() throws Exception {
-        String expected = PublicController.MESSAGE;
+        String expected = "";
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
                     .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists(HEADER_KEY))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isForbidden())
                     .andReturn();
 
         assertEquals(expected, result.getResponse().getContentAsString());
     }
-    
-    @Test
-    @WithMockUser(roles={"USER"})
-    public void testGetAsUser() throws Exception {
-        String expected = PublicController.MESSAGE;
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
-                    .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists(HEADER_KEY))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andReturn();
 
-        assertEquals(expected, result.getResponse().getContentAsString());
-    } 
-  
     @Test
-    @WithMockUser(roles={})
+    @WithMockUser(authorities = {}, roles={})
     public void testGetAsNoRole() throws Exception {
-        String expected = PublicController.MESSAGE;
+        String expected = "";
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
                     .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists(HEADER_KEY))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isForbidden())
                     .andReturn();
 
         assertEquals(expected, result.getResponse().getContentAsString());
     }
-    
-    @Test
-    @WithMockUser(roles={"ADMIN"})
-    public void testPostAsAdmin() throws Exception {
-        String expected = PublicController.POSTED;
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
-            .content("abc")
-            .contentType(MediaType.APPLICATION_JSON)
-            .with(csrf().asHeader())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andReturn();
-        assertEquals(expected, result.getResponse().getContentAsString());            
-    }
 
     @Test
-    @WithMockUser(roles={"USER"})
+    @WithMockUser(authorities = {"AUTHOR"}, roles={"USER"})
     public void testPostAsUser() throws Exception {
-        String expected = PublicController.POSTED;
-        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
-            .content("abc")
-            .contentType(MediaType.APPLICATION_JSON)
-            .with(csrf().asHeader())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated())
-            .andExpect(header().exists(HEADER_KEY))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.jsonPath("$").exists())
-            .andReturn();
-        assertEquals(expected, result.getResponse().getContentAsString());            
-    }    
-
-    @Test
-    @WithMockUser(roles={})
-    public void testPostAsNoRole() throws Exception {
-        String expected = PublicController.POSTED;
+        String expected = AuthorController.POSTED;
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content("abc")
             .contentType(MediaType.APPLICATION_JSON)
@@ -124,8 +86,8 @@ public class TestPublicController {
     }
 
     @Test
-    @WithMockUser(roles={})
-    public void testPostAsNoRoleNoCsrf() throws Exception {
+    @WithMockUser(authorities = {"AUTHOR"}, roles={"USER"})
+    public void testPostAsUserNoCsrf() throws Exception {
         String expected = "";
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
             .content("abc")
@@ -134,12 +96,40 @@ public class TestPublicController {
             .andExpect(status().isForbidden())
             .andReturn();
         assertEquals(expected, result.getResponse().getContentAsString());            
-    }    
+    }
+
+    @Test
+    @WithMockUser(roles={"ADMIN"})
+    public void testPostAsAdmin() throws Exception {
+        String expected = "";
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
+            .content("abc")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf().asHeader())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andReturn();
+        assertEquals(expected, result.getResponse().getContentAsString());            
+    }
 
     @Test
     @WithMockUser(roles={})
-    public void testPutAsNoRole() throws Exception {
-        String expected = PublicController.PUT;
+    public void testPostAsNoRole() throws Exception {
+        String expected = "";
+        final MvcResult result = mvc.perform(MockMvcRequestBuilders.post(PATH)
+            .content("abc")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf().asHeader())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andReturn();
+        assertEquals(expected, result.getResponse().getContentAsString());            
+    }    
+
+    @Test
+    @WithMockUser(authorities = {"AUTHOR"}, roles={"USER"})
+    public void testPutAsUser() throws Exception {
+        String expected = AuthorController.PUT;
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.put(PATH + "/{id}", "1")
             .content("abc")
             .contentType(MediaType.APPLICATION_JSON)
@@ -154,8 +144,8 @@ public class TestPublicController {
     }
 
     @Test
-    @WithMockUser(roles={})
-    public void testDeleteAsNoRole() throws Exception {
+    @WithMockUser(authorities = {"AUTHOR"}, roles={"USER"})
+    public void testDeleteAsUser() throws Exception {
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(PATH + "/{id}", "1")
             .with(csrf().asHeader())
             .accept(MediaType.APPLICATION_JSON))
@@ -164,21 +154,18 @@ public class TestPublicController {
             .andReturn();
         assertNull(result.getResponse().getContentType());
         assertEquals(result.getResponse().getContentAsByteArray().length, 0);               
-    }       
+    }    
     
-
     @Test
     @WithAnonymousUser
     public void testGetAnyUser() throws Exception {
-        String expected = PublicController.MESSAGE;
+        String expected = "";
         final MvcResult result = mvc.perform(MockMvcRequestBuilders.get(PATH)
                     .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(header().exists(HEADER_KEY))
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isUnauthorized())
                     .andReturn();
 
         assertEquals(expected, result.getResponse().getContentAsString());
     }
-    
+
 }

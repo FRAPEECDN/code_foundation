@@ -21,7 +21,6 @@ public class PublicController {
     public static final String MESSAGE = "public access works!";
     public static final String POSTED = "public post works!";
     public static final String PUT = "public put works!";
-    public static final String DELETE = "public delete works!";
 
     @GetMapping
     public String get() {
