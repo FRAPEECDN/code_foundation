@@ -19,13 +19,6 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.47.1.0</version> <!-- Use the latest version -->
         </dependency>
-        <!-- 
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>6.2.1</version> 
-        </dependency>
-        -->
-    </dependencies>
+     </dependencies>
 
 </project>
