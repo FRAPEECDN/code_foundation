@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.frapee.basic.dto.SimpleDto;
@@ -111,7 +112,8 @@ public class SimpleService {
         log.info("Removing an item from the database");
         Optional<SimpleEntity> lookup = repository.findById(id);
         if (lookup.isPresent()) {
-            repository.delete(lookup.get());
+            SimpleEntity safeEntity = Objects.requireNonNull(lookup.get());
+            repository.delete(safeEntity);
         } else {
             throw new EntityNotFoundException();
         }

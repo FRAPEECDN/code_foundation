@@ -169,7 +169,8 @@ public class SimpleControllerRestTemplateIT {
     @Test
     @DirtiesContext
     public void testCreate() throws Exception {
-        SimpleDto contentData = new SimpleDto(11, "coconut");
+        SimpleDto contentData = new SimpleDto(0, "coconut");
+        SimpleDto expected = new SimpleDto(11, "coconut");
         final RestTemplate restTemplate = new RestTemplate();
         final HttpHeaders httpHeaders = new HttpHeaders();
         final HttpEntity<SimpleDto> httpEntity = new HttpEntity<>(contentData, httpHeaders);        
@@ -181,7 +182,7 @@ public class SimpleControllerRestTemplateIT {
         );
         assertThat(response, notNullValue());
         assertThat(response.getStatusCode(), equalTo(HttpStatus.CREATED));
-        assertThat(response.getBody(), equalTo(contentData));
+        assertThat(response.getBody(), equalTo(expected));
     }
 
     @Test

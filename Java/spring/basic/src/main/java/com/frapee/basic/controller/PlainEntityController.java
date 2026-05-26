@@ -108,9 +108,12 @@ public class PlainEntityController {
         int endIndex = Math.min(startIndex + size, totalSize); 
 
         List<String> pageContent = returned.subList(startIndex, endIndex);
-        Page<String> body = new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
-        return ResponseEntity.ok()
-            .body(body);
+        if (pageContent != null) {
+            return ResponseEntity.ok()
+                .body(new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize));
+        } else {
+            throw new GeneralServiceException();
+        }
     }
 
     @PostMapping

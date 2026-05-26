@@ -34,7 +34,6 @@ public class TestSimpleRepository {
    @Test
     public void testSaveAndGet() {
         SimpleEntity aEntity = SimpleEntity.builder()
-            .id(0)
             .name("test")
             .build();
 
@@ -51,7 +50,6 @@ public class TestSimpleRepository {
     @Test
     public void testSaveAndGetMultiple() {
         SimpleEntity aEntity = SimpleEntity.builder()
-            .id(1)
             .name("test One")
             .build();
 
@@ -59,7 +57,6 @@ public class TestSimpleRepository {
         int aSavedId = aEntity.getId();
 
         SimpleEntity bEntity = SimpleEntity.builder()
-            .id(2)
             .name("test Two")
             .build();
 
@@ -83,7 +80,6 @@ public class TestSimpleRepository {
     @Test
     public void testUpdate() {
         SimpleEntity aEntity = SimpleEntity.builder()
-            .id(0)
             .name("test")
             .build();
 
@@ -104,7 +100,6 @@ public class TestSimpleRepository {
     @Test
     public void testDelete() {
         SimpleEntity aEntity = SimpleEntity.builder()
-            .id(0)
             .name("test")
             .build();
 

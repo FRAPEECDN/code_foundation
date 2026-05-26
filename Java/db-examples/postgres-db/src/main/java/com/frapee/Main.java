@@ -1,11 +1,24 @@
 package com.frapee;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.yaml.snakeyaml.Yaml;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -76,12 +89,62 @@ public class Main {
         }
     }
 
+    private static Map<String, Object> loadYamlConfig(String resourceName) {
+        try (InputStream stream = Main.class.getResourceAsStream(resourceName)) {
+            if (stream == null) {
+                throw new IllegalStateException("Missing resource: " + resourceName);
+            }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> yaml = (Map<String, Object>) new Yaml().load(stream);
+            return yaml;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load YAML config", e);
+        }
+    }
+
+    private static String extractEncryptedValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        if (value.startsWith("ENC(") && value.endsWith(")")) {
+            return value.substring(4, value.length() - 1);
+        }
+        return value;
+    }
+
+    private static String decrypt(String encryptedValue, String base64Iv, String secret) {
+        try {
+            byte[] iv = Base64.getDecoder().decode(base64Iv);
+            byte[] keyBytes = MessageDigest.getInstance("SHA-256").digest(secret.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedValue));
+            return new String(decrypted, StandardCharsets.UTF_8);
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException("Unable to decrypt database credentials", e);
+        }
+    }
+
     public static void main(String[] args) {
+        Map<String, Object> yamlConfig = loadYamlConfig("/db-config.yml");
+        @SuppressWarnings("unchecked")
+        Map<String, String> dbConfig = (Map<String, String>) yamlConfig.get("db");
+
+        String url = dbConfig.get("url");
+        String secret = System.getenv("DB_CONFIG_SECRET");
+        if (secret == null || secret.isBlank()) {
+            System.err.println("WARNING: DB_CONFIG_SECRET environment variable is not set. Using example fallback key.");
+            secret = "DB_CONFIG_SECRET_EXAMPLE_ChangeMe";
+        }
+
+        String username = decrypt(extractEncryptedValue(dbConfig.get("username")), dbConfig.get("iv"), secret);
+        String password = decrypt(extractEncryptedValue(dbConfig.get("password")), dbConfig.get("iv"), secret);
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/test_two");
-        config.setUsername("postgres");
-        config.setPassword("G1j1m@");
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
         config.setMaximumPoolSize(10); // Set the max pool size
 
         List<Person> listPeople = new ArrayList<>();

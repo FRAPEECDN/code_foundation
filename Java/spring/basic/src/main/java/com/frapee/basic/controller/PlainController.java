@@ -107,7 +107,11 @@ public class PlainController {
         int endIndex = Math.min(startIndex + size, totalSize); 
 
         List<String> pageContent = returned.subList(startIndex, endIndex);
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
+        if (pageContent != null) {
+            return new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
+        } else {
+            throw new GeneralServiceException();
+        }
     }
 
     @PostMapping

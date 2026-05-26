@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.frapee.basic.dto.SimpleDto;
+import com.frapee.basic.exceptions.GeneralServiceException;
 import com.frapee.basic.service.SimpleService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -101,7 +102,11 @@ public class SimpleController {
         int endIndex = Math.min(startIndex + size, totalSize); 
 
         List<SimpleDto> pageContent = returned.subList(startIndex, endIndex);
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
+        if (pageContent != null) {
+            return new PageImpl<>(pageContent, PageRequest.of(page, size), totalSize);
+        } else {
+            throw new GeneralServiceException();
+        }
     }
 
     @PostMapping
