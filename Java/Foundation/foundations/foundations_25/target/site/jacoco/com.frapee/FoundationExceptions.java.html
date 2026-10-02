@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationExceptions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundations - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationExceptions.java</span></div><h1>FoundationExceptions.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.io.IOException;
+import java.io.StringReader;
+
+/**
+ * Foundation guide to checked, unchecked, and chained exceptions.
+ */
+<span class="fc" id="L9">public class FoundationExceptions {</span>
+
+    /**
+     * Throw a checked exception when requested.
+     * @param shouldFail whether to throw the exception
+     * @throws IOException when shouldFail is true
+     */
+    public void checkedFailure(boolean shouldFail) throws IOException {
+<span class="fc bfc" id="L17" title="All 2 branches covered.">        if (shouldFail) {</span>
+<span class="fc" id="L18">            throw new IOException(&quot;Checked failure&quot;);</span>
+        }
+<span class="fc" id="L20">    }</span>
+
+    /**
+     * Catch a checked exception and convert it to a status result.
+     * @param shouldFail whether the checked operation should fail
+     * @return true on success, false when IOException is caught
+     */
+    public boolean handleCheckedFailure(boolean shouldFail) {
+        try {
+<span class="fc" id="L29">            checkedFailure(shouldFail);</span>
+<span class="fc" id="L30">            return true;</span>
+<span class="fc" id="L31">        } catch (IOException exception) {</span>
+<span class="fc" id="L32">            return false;</span>
+        }
+    }
+
+    /**
+     * Catch an unchecked parsing exception at an API boundary.
+     * @param value text to parse
+     * @return parsed value, or -1 when parsing fails
+     */
+    public int parseInteger(String value) {
+        try {
+<span class="fc" id="L43">            return Integer.parseInt(value);</span>
+<span class="fc" id="L44">        } catch (NumberFormatException exception) {</span>
+<span class="fc" id="L45">            return -1;</span>
+        }
+    }
+
+    /**
+     * Demonstrate automatic closing of an AutoCloseable resource.
+     * @param value text held by the managed reader
+     * @return value after the reader is closed
+     * @throws IOException declared resource-operation failure
+     */
+    public String tryWithResources(String value) throws IOException {
+<span class="fc" id="L56">        try (StringReader reader = new StringReader(value)) {</span>
+<span class="fc" id="L57">            return value;</span>
+        }
+    }
+
+    /**
+     * Wrap an original exception while preserving it as the cause.
+     * @return wrapped exception whose cause is the original IOException
+     */
+    public IllegalStateException chainException() {
+        try {
+<span class="fc" id="L67">            throw new IOException(&quot;Original failure&quot;);</span>
+<span class="fc" id="L68">        } catch (IOException exception) {</span>
+<span class="fc" id="L69">            return new IllegalStateException(&quot;Wrapped failure&quot;, exception);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

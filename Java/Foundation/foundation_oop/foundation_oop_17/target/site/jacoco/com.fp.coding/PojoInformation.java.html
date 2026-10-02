@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PojoInformation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">PojoInformation.java</span></div><h1>PojoInformation.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+/**
+ * Mutable JavaBean example implementing the shared {@link Information} contract.
+ *
+ * &lt;p&gt;The class demonstrates encapsulated fields, overloaded constructors, input
+ * validation, value-based {@link #equals(Object)} and {@link #hashCode()}, and
+ * copying. Salary is optional; date and snapshot values are required. The no-arg
+ * constructor provides a valid inactive bean for frameworks and examples.
+ */
+public final class PojoInformation implements Information, Cloneable {
+    private long id;
+    private String name;
+    private int age;
+    private Double salary;
+    private boolean active;
+    private LocalDate createdDate;
+    private LocalDateTime snapShot;
+
+    /** Creates a valid inactive bean with placeholder identity data. */
+    public PojoInformation() {
+<span class="fc" id="L26">        this(0, &quot;Unknown&quot;, 1, null, false, LocalDate.now(), LocalDateTime.now());</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Creates an active bean without a salary value.
+     *
+     * @param id identifier for this bean
+    * @param name non-blank personal name; surrounding whitespace is removed
+     * @param age positive age
+     */
+    public PojoInformation(long id, String name, int age) {
+<span class="fc" id="L37">        this(id, name, age, null, true, LocalDate.now(), LocalDateTime.now());</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Creates an active bean with an optional, validated salary.
+     *
+     * @param id identifier for this bean
+    * @param name non-blank personal name; surrounding whitespace is removed
+     * @param age positive age
+     * @param salary finite, non-negative salary, or {@code null} when unspecified
+     */
+    public PojoInformation(long id, String name, int age, Double salary) {
+<span class="fc" id="L49">        this(id, name, age, salary, true, LocalDate.now(), LocalDateTime.now());</span>
+<span class="fc" id="L50">    }</span>
+
+    private PojoInformation(long id, String name, int age, Double salary, boolean active,
+<span class="fc" id="L53">            LocalDate createdDate, LocalDateTime snapShot) {</span>
+<span class="fc" id="L54">        this.id = id;</span>
+<span class="fc" id="L55">        setName(name);</span>
+<span class="fc" id="L56">        setAge(age);</span>
+<span class="fc" id="L57">        setSalary(salary);</span>
+<span class="fc" id="L58">        this.active = active;</span>
+<span class="fc" id="L59">        this.createdDate = Objects.requireNonNull(createdDate, &quot;createdDate&quot;);</span>
+<span class="fc" id="L60">        this.snapShot = Objects.requireNonNull(snapShot, &quot;snapShot&quot;);</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public String summary() {
+<span class="fc" id="L65">        return &quot;PojoInformation{name='%s', age=%d, salary=%s}&quot;.formatted(name, age, salary);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L70">        return Objects.hash(id, name, age, salary, active, createdDate, snapShot);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L76">            return true;</span>
+        }
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (!(obj instanceof PojoInformation other)) {</span>
+<span class="fc" id="L79">            return false;</span>
+        }
+<span class="fc bfc" id="L81" title="All 6 branches covered.">        return id == other.id</span>
+                &amp;&amp; age == other.age
+                &amp;&amp; active == other.active
+<span class="fc bfc" id="L84" title="All 2 branches covered.">                &amp;&amp; Objects.equals(name, other.name)</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                &amp;&amp; Objects.equals(salary, other.salary)</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                &amp;&amp; Objects.equals(createdDate, other.createdDate)</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">                &amp;&amp; Objects.equals(snapShot, other.snapShot);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L92">        return &quot;PojoInformation[id=%d, name='%s', age=%d, salary=%s, active=%s, createdDate=%s, snapShot=%s]&quot;</span>
+<span class="fc" id="L93">                .formatted(id, name, age, salary, active, createdDate, snapShot);</span>
+    }
+
+    /** @return the identifier stored by this bean */
+    public long getId() {
+<span class="fc" id="L98">        return id;</span>
+    }
+
+    /** @param id identifier to store */
+    public void setId(long id) {
+<span class="fc" id="L103">        this.id = id;</span>
+<span class="fc" id="L104">    }</span>
+
+    /** @return the validated name stored by this bean */
+    public String getName() {
+<span class="fc" id="L108">        return name;</span>
+    }
+
+    /**
+     * Replaces the name after checking it contains letters and whitespace only.
+     *
+    * @param name non-blank personal name; surrounding whitespace is removed
+     * @throws IllegalArgumentException if the name is null, blank, or contains other characters
+     */
+    public void setName(String name) {
+<span class="fc" id="L118">        this.name = NameValidation.normalize(name);</span>
+<span class="fc" id="L119">    }</span>
+
+    /** @return the positive age stored by this bean */
+    public int getAge() {
+<span class="fc" id="L123">        return age;</span>
+    }
+
+    /**
+     * Replaces the age.
+     *
+     * @param age positive age
+     * @throws IllegalArgumentException if {@code age} is not positive
+     */
+    public void setAge(int age) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (age &lt;= 0) {</span>
+<span class="fc" id="L134">            throw new IllegalArgumentException(&quot;age must be greater than 0&quot;);</span>
+        }
+<span class="fc" id="L136">        this.age = age;</span>
+<span class="fc" id="L137">    }</span>
+
+    /** @return the optional salary, or {@code null} when it is unspecified */
+    public Double getSalary() {
+<span class="fc" id="L141">        return salary;</span>
+    }
+
+    /**
+     * Replaces the optional salary.
+     *
+     * @param salary finite, non-negative salary, or {@code null} when unspecified
+     * @throws IllegalArgumentException if a non-null salary is negative or non-finite
+     */
+    public void setSalary(Double salary) {
+<span class="fc bfc" id="L151" title="All 6 branches covered.">        if (salary != null &amp;&amp; (!Double.isFinite(salary) || salary &lt; 0)) {</span>
+<span class="fc" id="L152">            throw new IllegalArgumentException(&quot;salary must be finite and 0 or above&quot;);</span>
+        }
+<span class="fc" id="L154">        this.salary = salary;</span>
+<span class="fc" id="L155">    }</span>
+
+    /** @return whether this bean is marked active */
+    public boolean isActive() {
+<span class="fc" id="L159">        return active;</span>
+    }
+
+    /** @param active whether to mark this bean active */
+    public void setActive(boolean active) {
+<span class="fc" id="L164">        this.active = active;</span>
+<span class="fc" id="L165">    }</span>
+
+    /** @return the non-null date on which this bean was created */
+    public LocalDate getCreatedDate() {
+<span class="fc" id="L169">        return createdDate;</span>
+    }
+
+    /**
+     * Sets the creation date.
+     *
+     * @param createdDate non-null creation date
+     * @throws NullPointerException if {@code createdDate} is null
+     */
+    public void setCreatedDate(LocalDate createdDate) {
+<span class="fc" id="L179">        this.createdDate = Objects.requireNonNull(createdDate, &quot;createdDate&quot;);</span>
+<span class="fc" id="L180">    }</span>
+
+    /** @return the non-null snapshot timestamp */
+    public LocalDateTime getSnapShot() {
+<span class="fc" id="L184">        return snapShot;</span>
+    }
+
+    /**
+     * Sets the snapshot timestamp.
+     *
+     * @param snapShot non-null timestamp
+     * @throws NullPointerException if {@code snapShot} is null
+     */
+    public void setSnapShot(LocalDateTime snapShot) {
+<span class="fc" id="L194">        this.snapShot = Objects.requireNonNull(snapShot, &quot;snapShot&quot;);</span>
+<span class="fc" id="L195">    }</span>
+
+    /**
+     * Creates an independent bean containing the same field values.
+     *
+     * @return a copy of this object
+     */
+    public PojoInformation copy() {
+<span class="fc" id="L203">        return new PojoInformation(id, name, age, salary, active, createdDate, snapShot);</span>
+    }
+
+    @Override
+    public PojoInformation clone() {
+<span class="fc" id="L208">        return copy();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

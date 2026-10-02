@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Staff.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">Staff.java</span></div><h1>Staff.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.Objects;
+
+/**
+ * Sealed parent in the inheritance example, shared by the manager and developer types.
+ *
+ * &lt;p&gt;The hierarchy demonstrates a {@code final} child that closes inheritance and a
+ * {@code non-sealed} child that permits further specialization. Common identity and
+ * salary validation live here so both children inherit the same contract.
+ */
+public sealed abstract class Staff implements Information permits Manager, Developer {
+    private final String name;
+    private final double annualSalary;
+
+    /**
+     * Creates staff after validating the common name and annual salary.
+     *
+    * @param name non-blank personal name; surrounding whitespace is removed
+     * @param annualSalary finite, non-negative annual salary
+     * @throws IllegalArgumentException if either value is invalid
+     */
+<span class="fc" id="L23">    protected Staff(String name, double annualSalary) {</span>
+<span class="fc" id="L24">        this.name = NameValidation.normalize(name);</span>
+<span class="fc bfc" id="L25" title="All 4 branches covered.">        if (!Double.isFinite(annualSalary) || annualSalary &lt; 0) {</span>
+<span class="fc" id="L26">            throw new IllegalArgumentException(&quot;annualSalary must be finite and 0 or above&quot;);</span>
+        }
+<span class="fc" id="L28">        this.annualSalary = annualSalary;</span>
+<span class="fc" id="L29">    }</span>
+
+    /** @return the validated name shared by all staff subtypes */
+    public final String getName() {
+<span class="fc" id="L33">        return name;</span>
+    }
+
+    /** @return the finite, non-negative annual salary */
+    public final double getAnnualSalary() {
+<span class="fc" id="L38">        return annualSalary;</span>
+    }
+
+    /**
+     * Returns the role label supplied by the concrete child class.
+     *
+     * @return this staff member's role
+     */
+    public abstract String roleTitle();
+
+    @Override
+    public final String summary() {
+<span class="fc" id="L50">        return &quot;%s{name='%s', annualSalary=%.2f}&quot;.formatted(roleTitle(), name, annualSalary);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L55">        return Objects.hash(getClass(), name, annualSalary);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L60" title="3 of 6 branches missed.">        return this == obj || (obj != null &amp;&amp; getClass() == obj.getClass()</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                &amp;&amp; name.equals(((Staff) obj).name)</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                &amp;&amp; Double.compare(annualSalary, ((Staff) obj).annualSalary) == 0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

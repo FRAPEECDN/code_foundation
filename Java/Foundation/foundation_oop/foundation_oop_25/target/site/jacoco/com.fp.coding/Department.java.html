@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Department.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">Department.java</span></div><h1>Department.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Department composition example with one manager and zero or more developers.
+ *
+ * &lt;p&gt;Each developer is stored with a department-specific {@link OrdinalEnum}
+ * position and {@link StringEnum} happiness value. The assignment record keeps
+ * those ratings with the relationship rather than on the developer itself.
+ */
+public final class Department {
+    private final String name;
+    private final Manager manager;
+<span class="fc" id="L17">    private final List&lt;DeveloperAssignment&gt; developerAssignments = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Creates a department with its required manager.
+     *
+     * @param name non-blank department name
+     * @param manager the department's single manager
+     * @throws IllegalArgumentException if the name is null or blank
+     * @throws NullPointerException if {@code manager} is null
+     */
+<span class="fc" id="L27">    public Department(String name, Manager manager) {</span>
+<span class="fc bfc" id="L28" title="All 4 branches covered.">        if (name == null || name.isBlank()) {</span>
+<span class="fc" id="L29">            throw new IllegalArgumentException(&quot;department name must not be blank&quot;);</span>
+        }
+<span class="fc" id="L31">        this.name = name.strip();</span>
+<span class="fc" id="L32">        this.manager = Objects.requireNonNull(manager, &quot;manager&quot;);</span>
+<span class="fc" id="L33">    }</span>
+
+    /** @return this department's normalized name */
+    public String getName() {
+<span class="fc" id="L37">        return name;</span>
+    }
+
+    /** @return this department's required manager */
+    public Manager getManager() {
+<span class="fc" id="L42">        return manager;</span>
+    }
+
+    /**
+     * Assigns a developer to this department with a position and happiness value.
+     *
+     * @param developer developer to assign
+     * @param position enum position within the department
+     * @param happiness enum happiness rating
+     * @return the newly created assignment
+     * @throws NullPointerException if any argument is null
+     */
+    public DeveloperAssignment addDeveloper(Developer developer, OrdinalEnum position, StringEnum happiness) {
+<span class="fc" id="L55">        DeveloperAssignment assignment = new DeveloperAssignment(developer, position, happiness);</span>
+<span class="fc" id="L56">        developerAssignments.add(assignment);</span>
+<span class="fc" id="L57">        return assignment;</span>
+    }
+
+    /**
+     * Returns an immutable snapshot of developer assignments.
+     *
+     * @return assignments in insertion order
+     */
+    public List&lt;DeveloperAssignment&gt; getDeveloperAssignments() {
+<span class="fc" id="L66">        return List.copyOf(developerAssignments);</span>
+    }
+
+    /**
+     * Returns the manager and assigned developers through their shared parent type.
+     *
+     * @return an immutable snapshot with the manager first
+     */
+    public List&lt;Staff&gt; getStaffMembers() {
+<span class="fc" id="L75">        ArrayList&lt;Staff&gt; staffMembers = new ArrayList&lt;&gt;(developerAssignments.size() + 1);</span>
+<span class="fc" id="L76">        staffMembers.add(manager);</span>
+<span class="fc" id="L77">        developerAssignments.stream()</span>
+<span class="fc" id="L78">                .map(DeveloperAssignment::developer)</span>
+<span class="fc" id="L79">                .forEach(staffMembers::add);</span>
+<span class="fc" id="L80">        return List.copyOf(staffMembers);</span>
+    }
+
+    /** @return the manager's salary plus the salaries of all assigned developers */
+    public double getAnnualPayroll() {
+<span class="fc" id="L85">        return getStaffMembers().stream().mapToDouble(Staff::getAnnualSalary).sum();</span>
+    }
+
+    /**
+     * Department-specific data associated with one developer assignment.
+     *
+     * @param developer assigned developer
+     * @param position position represented by the ordinal enum
+     * @param happiness happiness represented by the string-valued enum
+     */
+    public record DeveloperAssignment(Developer developer, OrdinalEnum position, StringEnum happiness) {
+        /** Rejects missing developer or rating values. */
+<span class="fc" id="L97">        public DeveloperAssignment {</span>
+<span class="fc" id="L98">            Objects.requireNonNull(developer, &quot;developer&quot;);</span>
+<span class="fc" id="L99">            Objects.requireNonNull(position, &quot;position&quot;);</span>
+<span class="fc" id="L100">            Objects.requireNonNull(happiness, &quot;happiness&quot;);</span>
+<span class="fc" id="L101">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

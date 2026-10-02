@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DepartmentConsole.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">foundations-pojo_17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">DepartmentConsole.java</span></div><h1>DepartmentConsole.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Console actions for creating, listing, and removing departments. */
+final class DepartmentConsole {
+    private final ConsoleContext context;
+
+<span class="nc" id="L10">    DepartmentConsole(ConsoleContext context) {</span>
+<span class="nc" id="L11">        this.context = context;</span>
+<span class="nc" id="L12">    }</span>
+
+    void runMenu() {
+<span class="nc" id="L15">        boolean returning = false;</span>
+<span class="nc bnc" id="L16" title="All 2 branches missed.">        while (!returning) {</span>
+<span class="nc" id="L17">            System.out.println(&quot;\nDepartments: 1. List  2. Add  3. Remove  0. Back&quot;);</span>
+<span class="nc bnc" id="L18" title="All 5 branches missed.">            switch (context.readInt(&quot;Choose an action: &quot;)) {</span>
+<span class="nc" id="L19">                case 1 -&gt; context.departments.forEach(this::printDepartment);</span>
+<span class="nc" id="L20">                case 2 -&gt; addDepartment();</span>
+<span class="nc" id="L21">                case 3 -&gt; removeDepartment();</span>
+<span class="nc" id="L22">                case 0 -&gt; returning = true;</span>
+<span class="nc" id="L23">                default -&gt; System.out.println(&quot;Unknown action.&quot;);</span>
+            }
+        }
+<span class="nc" id="L26">    }</span>
+
+    private void addDepartment() {
+<span class="nc" id="L29">        List&lt;Manager&gt; managers = context.staffDirectory.stream()</span>
+<span class="nc" id="L30">                .filter(Manager.class::isInstance).map(Manager.class::cast).toList();</span>
+<span class="nc" id="L31">        List&lt;ProjectOwner&gt; owners = context.staffDirectory.stream()</span>
+<span class="nc" id="L32">                .filter(ProjectOwner.class::isInstance).map(ProjectOwner.class::cast).toList();</span>
+<span class="nc" id="L33">        Manager manager = context.select(&quot;manager&quot;, managers, Staff::summary);</span>
+<span class="nc" id="L34">        ProjectOwner owner = context.select(&quot;project owner&quot;, owners, Staff::summary);</span>
+<span class="nc bnc" id="L35" title="All 4 branches missed.">        if (manager == null || owner == null) {</span>
+<span class="nc" id="L36">            System.out.println(&quot;Create a manager and a project owner in Staff before adding a department.&quot;);</span>
+<span class="nc" id="L37">            return;</span>
+        }
+<span class="nc" id="L39">        Department department = Department.builder()</span>
+<span class="nc" id="L40">                .name(context.readText(&quot;Department name: &quot;))</span>
+<span class="nc" id="L41">                .manager(manager)</span>
+<span class="nc" id="L42">                .projectOwner(owner)</span>
+<span class="nc" id="L43">                .build();</span>
+<span class="nc" id="L44">        context.departments.add(department);</span>
+<span class="nc" id="L45">        addExistingDevelopers(department);</span>
+<span class="nc" id="L46">        addExistingProjects(department);</span>
+<span class="nc" id="L47">        System.out.println(&quot;Added department &quot; + department.getName() + &quot;.&quot;);</span>
+<span class="nc" id="L48">    }</span>
+
+    private void addExistingDevelopers(Department department) {
+<span class="nc" id="L51">        List&lt;Developer&gt; available = context.staffDirectory.stream()</span>
+<span class="nc" id="L52">                .filter(Developer.class::isInstance).map(Developer.class::cast)</span>
+<span class="nc" id="L53">                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">        while (!available.isEmpty() &amp;&amp; context.confirm(&quot;Add an existing developer? (y/n): &quot;)) {</span>
+<span class="nc" id="L55">            Developer developer = context.select(&quot;developer&quot;, available, Staff::summary);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (developer != null) {</span>
+<span class="nc" id="L57">                department.addDeveloper(developer, StaffLevel.MID, StaffContent.NEUTRAL);</span>
+<span class="nc" id="L58">                available.remove(developer);</span>
+            }
+<span class="nc" id="L60">        }</span>
+<span class="nc" id="L61">    }</span>
+
+    private void addExistingProjects(Department department) {
+<span class="nc" id="L64">        List&lt;Project&gt; available = context.projectDirectory.stream()</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                .filter(project -&gt; project.getProjectOwner() == department.getProjectOwner())</span>
+<span class="nc" id="L66">                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);</span>
+<span class="nc bnc" id="L67" title="All 4 branches missed.">        while (!available.isEmpty() &amp;&amp; context.confirm(&quot;Add an existing project? (y/n): &quot;)) {</span>
+<span class="nc" id="L68">            Project project = context.select(&quot;project&quot;, available, context::projectLabel);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (project != null) {</span>
+<span class="nc" id="L70">                department.addProject(project);</span>
+<span class="nc" id="L71">                available.remove(project);</span>
+            }
+<span class="nc" id="L73">        }</span>
+<span class="nc" id="L74">    }</span>
+
+    private void removeDepartment() {
+<span class="nc" id="L77">        Department department = context.select(&quot;department&quot;, context.departments, Department::getName);</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        if (department != null &amp;&amp; context.departments.remove(department)) {</span>
+<span class="nc" id="L79">            System.out.println(&quot;Removed department &quot; + department.getName() + &quot;.&quot;);</span>
+        }
+<span class="nc" id="L81">    }</span>
+
+    private void printDepartment(Department department) {
+<span class="nc" id="L84">        System.out.println(&quot;\n&quot; + department.getName() + &quot; | Manager: &quot; + department.getManager().getName()</span>
+<span class="nc" id="L85">                + &quot; | Project owner: &quot; + department.getProjectOwner().getName());</span>
+<span class="nc" id="L86">        department.getStaffMembers().forEach(staff -&gt; System.out.println(&quot;  Staff: &quot; + staff.summary()));</span>
+<span class="nc" id="L87">        department.getProjects().forEach(project -&gt; System.out.println(&quot;  Project: &quot; + context.projectLabel(project)));</span>
+<span class="nc" id="L88">        department.getProjectAssignments().forEach(assignment -&gt; System.out.println(&quot;  Assigned: &quot;</span>
+<span class="nc" id="L89">                + assignment.staff().getName() + &quot; -&gt; &quot; + assignment.project().getProjectName()));</span>
+<span class="nc" id="L90">        System.out.printf(&quot;  Annual payroll: %.2f%n&quot;, department.getAnnualPayroll());</span>
+<span class="nc" id="L91">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

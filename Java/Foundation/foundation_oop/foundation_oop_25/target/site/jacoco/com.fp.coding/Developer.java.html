@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Developer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">Developer.java</span></div><h1>Developer.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.Objects;
+
+/**
+ * Developer branch of the staff hierarchy, left {@code non-sealed} for extension.
+ *
+ * &lt;p&gt;This child adds a specialty while inheriting the shared staff identity and
+ * salary rules. Unlike {@link Manager}, other classes may subclass this type;
+ * subclasses that add state should also extend the equality contract.
+ */
+public non-sealed class Developer extends Staff {
+    private final String specialty;
+
+    /**
+     * Creates a developer with a required specialty.
+     *
+     * @param name developer's name
+     * @param annualSalary developer's annual salary
+     * @param specialty non-blank area of expertise
+     * @throws IllegalArgumentException if the specialty or inherited staff data is invalid
+     */
+    public Developer(String name, double annualSalary, String specialty) {
+<span class="fc" id="L24">        super(name, annualSalary);</span>
+<span class="fc bfc" id="L25" title="All 4 branches covered.">        if (specialty == null || specialty.isBlank()) {</span>
+<span class="fc" id="L26">            throw new IllegalArgumentException(&quot;specialty must not be blank&quot;);</span>
+        }
+<span class="fc" id="L28">        this.specialty = specialty.strip();</span>
+<span class="fc" id="L29">    }</span>
+
+    /** @return this developer's validated specialty */
+    public String getSpecialty() {
+<span class="fc" id="L33">        return specialty;</span>
+    }
+
+    @Override
+    public String roleTitle() {
+<span class="fc" id="L38">        return &quot;Developer&quot;;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L43">        return &quot;%s[specialty='%s']&quot;.formatted(summary(), specialty);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L48">        return Objects.hash(super.hashCode(), specialty);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L54">            return true;</span>
+        }
+<span class="fc bfc" id="L56" title="All 4 branches covered.">        if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="fc" id="L57">            return false;</span>
+        }
+<span class="fc" id="L59">        Developer other = (Developer) obj;</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">        return super.equals(other) &amp;&amp; Objects.equals(specialty, other.specialty);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

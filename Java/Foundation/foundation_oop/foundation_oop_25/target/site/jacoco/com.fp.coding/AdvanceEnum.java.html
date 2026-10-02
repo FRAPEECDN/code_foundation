@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdvanceEnum.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">AdvanceEnum.java</span></div><h1>AdvanceEnum.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+/**
+ * Enum example whose constants carry a role name, hierarchy level, and salary.
+ *
+ * &lt;p&gt;It demonstrates that an enum can hold immutable fields and expose behavior,
+ * rather than serving only as a list of labels.
+ */
+<span class="fc" id="L9">public enum AdvanceEnum {</span>
+    /** Management role at level 1 with the example salary of 120,000. */
+<span class="fc" id="L11">    MANAGER(&quot;Manager&quot;, 1, 120000.0),</span>
+    /** Software development role at level 2 with the example salary of 80,000. */
+<span class="fc" id="L13">    DEVELOPER(&quot;Developer&quot;, 2, 80000.0),</span>
+    /** Software testing role at level 3 with the example salary of 60,000. */
+<span class="fc" id="L15">    TESTER(&quot;Tester&quot;, 3, 60000.0),</span>
+    /** User-interface design role at level 4 with the example salary of 90,000. */
+<span class="fc" id="L17">    DESIGNER(&quot;Designer&quot;, 4, 90000.0);</span>
+
+    private final String role;
+    private final int level;
+    private final double salary;
+
+<span class="fc" id="L23">    AdvanceEnum(String role, int level, double salary) {</span>
+<span class="fc" id="L24">        this.role = role;</span>
+<span class="fc" id="L25">        this.level = level;</span>
+<span class="fc" id="L26">        this.salary = salary;</span>
+<span class="fc" id="L27">    }</span>
+
+    /** @return the display name associated with this role */
+    public String getRole() {
+<span class="fc" id="L31">        return role;</span>
+    }
+
+    /** @return the example hierarchy level associated with this role */
+    public int getLevel() {
+<span class="fc" id="L36">        return level;</span>
+    }
+
+    /** @return the example salary associated with this role */
+    public double getSalary() {
+<span class="fc" id="L41">        return salary;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

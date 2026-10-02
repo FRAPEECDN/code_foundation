@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationLambda.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationLambda.java</span></div><h1>FoundationLambda.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+/**
+ * Foundation examples for lambda expressions and functional composition.
+ */
+<span class="fc" id="L12">public class FoundationLambda {</span>
+
+    /**
+     * Apply a lambda transformation to every value.
+     * @param values input values
+     * @param mapper transformation lambda
+     * @return transformed values
+     */
+    public List&lt;Integer&gt; mapValues(List&lt;Integer&gt; values, Function&lt;Integer, Integer&gt; mapper) {
+<span class="fc" id="L21">        return values.stream().map(mapper).toList();</span>
+    }
+
+    /**
+     * Keep values that satisfy a lambda predicate.
+     * @param values input values
+     * @param predicate filtering lambda
+     * @return matching values
+     */
+    public List&lt;Integer&gt; filterValues(List&lt;Integer&gt; values, Predicate&lt;Integer&gt; predicate) {
+<span class="fc" id="L31">        return values.stream().filter(predicate).toList();</span>
+    }
+
+    /**
+     * Reduce values using a binary lambda operation.
+     * @param values input values
+     * @param initialValue starting accumulator value
+     * @param operation reduction lambda
+     * @return reduced value
+     */
+    public int reduceValues(List&lt;Integer&gt; values, int initialValue,
+            BiFunction&lt;Integer, Integer, Integer&gt; operation) {
+<span class="fc" id="L43">        int result = initialValue;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        for (int value : values) {</span>
+<span class="fc" id="L45">            result = operation.apply(result, value);</span>
+<span class="fc" id="L46">        }</span>
+<span class="fc" id="L47">        return result;</span>
+    }
+
+    /**
+     * Compose two Function lambdas so the first result becomes the second input.
+     * @param first first transformation
+     * @param second second transformation
+     * @param value initial input
+     * @return composed result
+     */
+    public int composeFunctions(Function&lt;Integer, Integer&gt; first,
+            Function&lt;Integer, Integer&gt; second, int value) {
+<span class="fc" id="L59">        return second.compose(first).apply(value);</span>
+    }
+
+    /**
+     * Demonstrate a lambda capturing an effectively final local value.
+     * @param amount value captured by the returned lambda
+     * @return function that adds amount to its input
+     */
+    public Function&lt;Integer, Integer&gt; createAdder(int amount) {
+<span class="fc" id="L68">        return value -&gt; value + amount;</span>
+    }
+
+    /**
+     * Join values after transforming each one with a lambda.
+     * @param values input values
+     * @param formatter formatting lambda
+     * @return comma-separated formatted values
+     */
+    public String joinFormatted(List&lt;Integer&gt; values, Function&lt;Integer, String&gt; formatter) {
+<span class="fc" id="L78">        return values.stream().map(formatter).collect(Collectors.joining(&quot;,&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExampleMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">ExampleMenu.java</span></div><h1>ExampleMenu.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.io.PrintStream;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
+
+/** Console launcher that groups every runnable example into a selectable section. */
+public final class ExampleMenu {
+<span class="fc" id="L10">    private static final List&lt;Section&gt; SECTIONS = List.of(</span>
+<span class="fc" id="L11">            new Section(&quot;1&quot;, &quot;POJO and record models&quot;, () -&gt; ModelExamples.main(new String[0])),</span>
+<span class="fc" id="L12">            new Section(&quot;2&quot;, &quot;Enums&quot;, () -&gt; EnumExamples.main(new String[0])),</span>
+<span class="fc" id="L13">            new Section(&quot;3&quot;, &quot;Inheritance and polymorphism&quot;, () -&gt; InheritanceExamples.main(new String[0])),</span>
+<span class="fc" id="L14">            new Section(&quot;4&quot;, &quot;Generics and Java 21 language features&quot;, () -&gt; GenericExamples.main(new String[0])),</span>
+            new Section(&quot;5&quot;, &quot;Objects, Optional, and catalog composition&quot;,
+<span class="fc" id="L16">                    () -&gt; ObjectsOptionalExamples.main(new String[0])),</span>
+<span class="fc" id="L17">            new Section(&quot;6&quot;, &quot;Department composition&quot;, () -&gt; DepartmentExamples.main(new String[0])),</span>
+            new Section(&quot;7&quot;, &quot;UUID, Comparable, Comparator, and serialization&quot;,
+<span class="fc" id="L19">                    () -&gt; UuidPojoExamples.main(new String[0])),</span>
+                new Section(&quot;8&quot;, &quot;List, Set, Map, searching, and streams&quot;,
+<span class="fc" id="L21">                    () -&gt; CollectionExamples.main(new String[0])),</span>
+                new Section(&quot;9&quot;, &quot;Java 21 sequenced collections&quot;,
+<span class="fc" id="L23">                    () -&gt; CollectionEvolutionExamples.main(new String[0])));</span>
+
+    private ExampleMenu() {
+    }
+
+    /** Starts the interactive menu using standard input and output. */
+    public static void main(String[] args) {
+<span class="nc" id="L30">        runMenu(new Scanner(System.in), System.out);</span>
+<span class="nc" id="L31">    }</span>
+
+    /**
+     * Displays sections until the user selects exit or input ends.
+     *
+     * @param input source for menu choices
+     * @param output destination for menu text
+     * @throws NullPointerException if either argument is null
+     */
+    public static void runMenu(Scanner input, PrintStream output) {
+<span class="fc" id="L41">        Objects.requireNonNull(input, &quot;input&quot;);</span>
+<span class="fc" id="L42">        Objects.requireNonNull(output, &quot;output&quot;);</span>
+
+        while (true) {
+<span class="fc" id="L45">            printMenu(output);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            if (!input.hasNextLine()) {</span>
+<span class="nc" id="L47">                return;</span>
+            }
+
+<span class="fc" id="L50">            String choice = input.nextLine().strip();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (choice.equals(&quot;0&quot;)) {</span>
+<span class="fc" id="L52">                output.println(&quot;Exiting examples.&quot;);</span>
+<span class="fc" id="L53">                return;</span>
+            }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (choice.equals(&quot;10&quot;)) {</span>
+<span class="fc" id="L56">                runAll(output);</span>
+<span class="fc" id="L57">                continue;</span>
+            }
+
+<span class="fc" id="L60">            Section selected = SECTIONS.stream()</span>
+<span class="fc" id="L61">                    .filter(section -&gt; section.number().equals(choice))</span>
+<span class="fc" id="L62">                    .findFirst()</span>
+<span class="fc" id="L63">                    .orElse(null);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if (selected == null) {</span>
+<span class="fc" id="L65">                output.println(&quot;Choose a section from 1 to 9, 10 to run all, or 0 to exit.&quot;);</span>
+<span class="fc" id="L66">                continue;</span>
+            }
+<span class="fc" id="L68">            runSection(selected, output);</span>
+<span class="fc" id="L69">        }</span>
+    }
+
+    private static void printMenu(PrintStream output) {
+<span class="fc" id="L73">        output.println();</span>
+<span class="fc" id="L74">        output.println(&quot;=== Foundation OOP Examples ===&quot;);</span>
+<span class="fc" id="L75">        SECTIONS.forEach(section -&gt; output.printf(&quot;%s. %s%n&quot;, section.number(), section.title()));</span>
+<span class="fc" id="L76">        output.println(&quot;10. Run all sections&quot;);</span>
+<span class="fc" id="L77">        output.println(&quot;0. Exit&quot;);</span>
+<span class="fc" id="L78">        output.print(&quot;Select a section: &quot;);</span>
+<span class="fc" id="L79">    }</span>
+
+    private static void runAll(PrintStream output) {
+<span class="fc" id="L82">        SECTIONS.forEach(section -&gt; runSection(section, output));</span>
+<span class="fc" id="L83">    }</span>
+
+    private static void runSection(Section section, PrintStream output) {
+<span class="fc" id="L86">        output.printf(&quot;%n--- %s ---%n&quot;, section.title());</span>
+        try {
+<span class="fc" id="L88">            section.action().run();</span>
+<span class="nc" id="L89">        } catch (Exception exception) {</span>
+<span class="nc" id="L90">            output.printf(&quot;Section failed: %s%n&quot;, exception.getMessage());</span>
+<span class="fc" id="L91">        }</span>
+<span class="fc" id="L92">    }</span>
+
+    @FunctionalInterface
+    private interface ExampleAction {
+        void run() throws Exception;
+    }
+
+<span class="fc" id="L99">    private record Section(String number, String title, ExampleAction action) {</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

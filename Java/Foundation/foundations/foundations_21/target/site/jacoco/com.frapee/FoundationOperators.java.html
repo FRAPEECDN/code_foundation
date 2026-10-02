@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationOperators.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationOperators.java</span></div><h1>FoundationOperators.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+/**
+ * Foundation guide to Java operators and evaluation rules.
+ * Covers bitwise operations, shifts, compound assignment, precedence, and
+ * short-circuit boolean evaluation.
+ */
+<span class="fc" id="L8">public class FoundationOperators {</span>
+
+    /** @param left left bit pattern
+     * @param right right bit pattern
+     * @return bitwise AND result */
+    public int bitwiseAnd(int left, int right) {
+<span class="fc" id="L14">        return left &amp; right;</span>
+    }
+
+    /** @param left left bit pattern
+     * @param right right bit pattern
+     * @return bitwise OR result */
+    public int bitwiseOr(int left, int right) {
+<span class="fc" id="L21">        return left | right;</span>
+    }
+
+    /** @param left left bit pattern
+     * @param right right bit pattern
+     * @return bitwise XOR result */
+    public int bitwiseXor(int left, int right) {
+<span class="fc" id="L28">        return left ^ right;</span>
+    }
+
+    /** @param value bit pattern
+     * @return inverted bit pattern */
+    public int bitwiseNot(int value) {
+<span class="fc" id="L34">        return ~value;</span>
+    }
+
+    /** @param value value to shift
+     * @param places number of positions
+     * @return left-shifted value */
+    public int leftShift(int value, int places) {
+<span class="fc" id="L41">        return value &lt;&lt; places;</span>
+    }
+
+    /** @param value value to shift
+     * @param places number of positions
+     * @return sign-preserving right-shifted value */
+    public int signedRightShift(int value, int places) {
+<span class="fc" id="L48">        return value &gt;&gt; places;</span>
+    }
+
+    /** @param value value to shift
+     * @param places number of positions
+     * @return zero-filled right-shifted value */
+    public int unsignedRightShift(int value, int places) {
+<span class="fc" id="L55">        return value &gt;&gt;&gt; places;</span>
+    }
+
+    /** @param value starting value
+     * @param amount amount to add
+     * @return value after compound addition */
+    public int compoundAdd(int value, int amount) {
+<span class="fc" id="L62">        value += amount;</span>
+<span class="fc" id="L63">        return value;</span>
+    }
+
+    /** @return result showing multiplication precedence over addition */
+    public int withoutParentheses() {
+<span class="fc" id="L68">        return 2 + 3 * 4;</span>
+    }
+
+    /** @return result showing parentheses overriding precedence */
+    public int withParentheses() {
+<span class="fc" id="L73">        return (2 + 3) * 4;</span>
+    }
+
+    /**
+     * The right side is not evaluated when the left side of &amp;amp;&amp;amp; is false.
+     * @param condition left side of the short-circuit expression
+     * @param divisor value used by the right side
+     * @return result of the boolean expression
+     */
+    public boolean shortCircuitAnd(boolean condition, int divisor) {
+<span class="pc bpc" id="L83" title="1 of 4 branches missed.">        return condition &amp;&amp; 10 / divisor &gt; 0;</span>
+    }
+
+    /**
+     * The right side is not evaluated when the left side of || is true.
+     * @param condition left side of the short-circuit expression
+     * @param divisor value used by the right side
+     * @return result of the boolean expression
+     */
+    public boolean shortCircuitOr(boolean condition, int divisor) {
+<span class="pc bpc" id="L93" title="1 of 4 branches missed.">        return condition || 10 / divisor &gt; 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

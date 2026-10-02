@@ -1,5 +1,0 @@
-db:
-  url: jdbc:postgresql://localhost:5432/test_two
-  username: ENC(R4yyxCPAGe9yeRdIFxdweA==)
-  password: ENC(kM9eOhJ1mIjuNQSiYCWVIw==)
-  iv: MzcS7g83hch5y0ZbY51IQQ==

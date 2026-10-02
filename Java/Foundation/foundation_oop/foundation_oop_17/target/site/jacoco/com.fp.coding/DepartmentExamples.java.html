@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DepartmentExamples.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">DepartmentExamples.java</span></div><h1>DepartmentExamples.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+/** Runnable example of a department with one manager and multiple rated developers. */
+public final class DepartmentExamples {
+    private DepartmentExamples() {
+    }
+
+    /** Runs the department example and displays the assigned positions and happiness values.
+     *
+     * @param args command-line arguments; unused
+     */
+    public static void main(String[] args) {
+<span class="fc" id="L13">        Department department = new Department(&quot;Engineering&quot;, new Manager(&quot;Ada Lovelace&quot;, 160000, 5));</span>
+<span class="fc" id="L14">        department.addDeveloper(new Developer(&quot;Mary-Jane O'Connor&quot;, 125000, &quot;Platform&quot;),</span>
+                OrdinalEnum.FIRST, StringEnum.HAPPY);
+<span class="fc" id="L16">        department.addDeveloper(new Developer(&quot;Grace Hopper&quot;, 140000, &quot;Compilers&quot;),</span>
+                OrdinalEnum.SECOND, StringEnum.CHILL);
+
+<span class="fc" id="L19">        System.out.println(&quot;Department: &quot; + department.getName());</span>
+<span class="fc" id="L20">        System.out.println(&quot;Manager: &quot; + department.getManager());</span>
+<span class="fc" id="L21">        department.getDeveloperAssignments().forEach(assignment -&gt; System.out.printf(</span>
+                &quot;Developer: %s, position: %s, happiness: %s (%s)%n&quot;,
+<span class="fc" id="L23">                assignment.developer().getName(), assignment.position(),</span>
+<span class="fc" id="L24">                assignment.happiness(), assignment.happiness().getValue()));</span>
+<span class="fc" id="L25">        System.out.println(&quot;Annual payroll: &quot; + department.getAnnualPayroll());</span>
+<span class="fc" id="L26">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

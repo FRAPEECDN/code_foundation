@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InformationCatalog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">InformationCatalog.java</span></div><h1>InformationCatalog.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * Has-a example that groups mutable POJOs and immutable record snapshots.
+ *
+ * &lt;p&gt;The catalog encapsulates two collections, demonstrating object composition
+ * through collaborating objects. It keeps the supplied POJO references, so changes
+ * to a stored POJO remain visible through the catalog. Lookup methods return
+ * {@link Optional} values instead of {@code null} when an entry is absent.
+ */
+public final class InformationCatalog {
+<span class="fc" id="L17">    private final List&lt;PojoInformation&gt; pojos = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L18">    private final List&lt;RecordInformation&gt; records = new ArrayList&lt;&gt;();</span>
+
+    /** Creates an empty catalog. */
+<span class="fc" id="L21">    public InformationCatalog() {</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Adds a mutable bean to the catalog.
+     *
+     * @param pojo bean to store
+     * @throws NullPointerException if {@code pojo} is null
+     */
+    public void add(PojoInformation pojo) {
+<span class="fc" id="L31">        pojos.add(Objects.requireNonNull(pojo, &quot;pojo&quot;));</span>
+<span class="fc" id="L32">    }</span>
+
+    /**
+     * Adds an immutable record to the catalog.
+     *
+     * @param record record to store
+     * @throws NullPointerException if {@code record} is null
+     */
+    public void add(RecordInformation record) {
+<span class="fc" id="L41">        records.add(Objects.requireNonNull(record, &quot;record&quot;));</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Finds the first bean with the requested identifier.
+     *
+     * @param id identifier to find
+     * @return the matching bean, or an empty optional if no bean has that identifier
+     */
+    public Optional&lt;PojoInformation&gt; findPojoById(long id) {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        return pojos.stream().filter(pojo -&gt; pojo.getId() == id).findFirst();</span>
+    }
+
+    /**
+     * Finds the first record whose name equals the supplied name.
+     *
+     * @param name name to find; must not be null
+     * @return the matching record, or an empty optional if no record has that name
+     * @throws NullPointerException if {@code name} is null
+     */
+    public Optional&lt;RecordInformation&gt; findRecordByName(String name) {
+<span class="fc" id="L62">        Objects.requireNonNull(name, &quot;name&quot;);</span>
+<span class="fc" id="L63">        return records.stream().filter(record -&gt; Objects.equals(record.name(), name)).findFirst();</span>
+    }
+
+    /**
+     * Finds a bean's optional salary.
+     *
+     * &lt;p&gt;{@link Optional#map(java.util.function.Function)} converts a null salary
+     * returned by the bean into an empty optional as well.
+     *
+     * @param id identifier of the bean
+     * @return the salary when both the bean and its salary are present; otherwise empty
+     */
+    public Optional&lt;Double&gt; findPojoSalary(long id) {
+<span class="fc" id="L76">        return findPojoById(id).map(PojoInformation::getSalary);</span>
+    }
+
+    /**
+     * Returns an immutable list of all entries through their shared interface.
+     *
+     * @return a snapshot containing the stored beans followed by the stored records
+     */
+    public List&lt;Information&gt; entries() {
+<span class="fc" id="L85">        ArrayList&lt;Information&gt; result = new ArrayList&lt;&gt;(pojos);</span>
+<span class="fc" id="L86">        result.addAll(records);</span>
+<span class="fc" id="L87">        return List.copyOf(result);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

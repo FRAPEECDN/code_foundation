@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CollectionExamples.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">CollectionExamples.java</span></div><h1>CollectionExamples.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * Runnable tour of List, Set, Map, sorting, searching, and streams with UUID POJOs.
+ *
+ * &lt;p&gt;Hash-based collections contain beans that are not mutated while stored because
+ * this example bean's hash code includes mutable value fields.
+ *
+ * &lt;p&gt;The List and Set sections show indexed and bulk updates, membership tests,
+ * iteration, arrays, and removal. The Map section demonstrates UUID keys and the
+ * lookup, compute, merge, replace, and view methods. Stream sections show pipelines
+ * over List elements, Set elements, and Map values.
+ */
+public final class CollectionExamples {
+        /** Case-insensitive name ordering used by the list sort and binary search examples. */
+<span class="fc" id="L31">        public static final Comparator&lt;UuidPojoInformation&gt; BY_NAME =</span>
+<span class="fc" id="L32">            Comparator.comparing(UuidPojoInformation::getName, String.CASE_INSENSITIVE_ORDER);</span>
+
+    private CollectionExamples() {
+    }
+
+        /**
+         * Runs the List, Set, Map, search, and Stream examples.
+         *
+         * @param args command-line arguments; unused
+         */
+    public static void main(String[] args) {
+<span class="fc" id="L43">        List&lt;UuidPojoInformation&gt; people = samplePeople();</span>
+<span class="fc" id="L44">        demonstrateList(people);</span>
+<span class="fc" id="L45">        demonstrateSet(people);</span>
+<span class="fc" id="L46">        Map&lt;UUID, UuidPojoInformation&gt; peopleById = demonstrateMap(people);</span>
+
+<span class="fc" id="L48">        System.out.println(&quot;Linear search for Grace Hopper: &quot;</span>
+<span class="fc" id="L49">                + linearSearchByName(people, &quot;Grace Hopper&quot;));</span>
+<span class="fc" id="L50">        ArrayList&lt;UuidPojoInformation&gt; sortedByName = new ArrayList&lt;&gt;(people);</span>
+<span class="fc" id="L51">        sortedByName.sort(BY_NAME);</span>
+<span class="fc" id="L52">        System.out.println(&quot;Binary search for Grace Hopper: &quot;</span>
+<span class="fc" id="L53">                + binarySearchByName(sortedByName, &quot;Grace Hopper&quot;));</span>
+<span class="fc" id="L54">        System.out.println(&quot;Binary search for missing name: &quot;</span>
+<span class="fc" id="L55">                + binarySearchByName(sortedByName, &quot;No Such Person&quot;));</span>
+
+<span class="fc" id="L57">        demonstrateStreams(&quot;List&quot;, people);</span>
+<span class="fc" id="L58">        demonstrateStreams(&quot;Set&quot;, new LinkedHashSet&lt;&gt;(people));</span>
+<span class="fc" id="L59">        demonstrateStreams(&quot;Map values&quot;, peopleById.values());</span>
+<span class="fc" id="L60">    }</span>
+
+        /** @return immutable sample data shared with the release-specific examples */
+        static List&lt;UuidPojoInformation&gt; samplePeople() {
+<span class="fc" id="L64">        return List.of(</span>
+<span class="fc" id="L65">                new UuidPojoInformation(&quot;Ada Lovelace&quot;, 36, 120000.0),</span>
+<span class="fc" id="L66">                new UuidPojoInformation(&quot;Grace Hopper&quot;, 85, 150000.0),</span>
+                new UuidPojoInformation(&quot;Alan Turing&quot;, 41, null),
+<span class="fc" id="L68">                new UuidPojoInformation(&quot;Katherine Johnson&quot;, 36, 95000.0));</span>
+    }
+
+    /**
+     * Performs a case-insensitive sequential lookup.
+     *
+     * @param people values to search
+     * @param name name to find
+     * @return the first matching index, or {@code -1} when absent
+        * @throws NullPointerException if {@code people} is null
+     */
+    public static int linearSearchByName(List&lt;UuidPojoInformation&gt; people, String name) {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int index = 0; index &lt; people.size(); index++) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            if (people.get(index).getName().equalsIgnoreCase(name)) {</span>
+<span class="fc" id="L82">                return index;</span>
+            }
+        }
+<span class="fc" id="L85">        return -1;</span>
+    }
+
+    /**
+        * Performs a case-insensitive binary lookup in a list already sorted by {@link #BY_NAME}.
+     *
+     * @param sortedPeople values sorted with the example's case-insensitive name comparator
+     * @param name name to find
+     * @return a matching index, or a negative insertion-point result when absent
+        * @throws NullPointerException if {@code sortedPeople} is null
+        * @throws IllegalArgumentException if {@code name} is invalid
+     */
+    public static int binarySearchByName(List&lt;UuidPojoInformation&gt; sortedPeople, String name) {
+<span class="fc" id="L98">        UuidPojoInformation key = new UuidPojoInformation(new UUID(0, 0), name, 1, null);</span>
+<span class="fc" id="L99">        return Collections.binarySearch(sortedPeople, key, BY_NAME);</span>
+    }
+
+    private static void demonstrateList(List&lt;UuidPojoInformation&gt; people) {
+<span class="fc" id="L103">        System.out.println(&quot;\nList API operations:&quot;);</span>
+<span class="fc" id="L104">        ArrayList&lt;UuidPojoInformation&gt; working = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L105">        working.add(people.get(0));</span>
+<span class="fc" id="L106">        working.addAll(people.subList(1, people.size()));</span>
+<span class="fc" id="L107">        working.add(1, people.get(0));</span>
+<span class="fc" id="L108">        System.out.println(&quot;size/isEmpty: &quot; + working.size() + &quot;/&quot; + working.isEmpty());</span>
+<span class="fc" id="L109">        System.out.println(&quot;get/indexOf/lastIndexOf: &quot; + working.get(0).getName() + &quot;/&quot;</span>
+<span class="fc" id="L110">                + working.indexOf(people.get(0)) + &quot;/&quot; + working.lastIndexOf(people.get(0)));</span>
+<span class="fc" id="L111">        System.out.println(&quot;contains/containsAll: &quot;</span>
+<span class="fc" id="L112">                + working.contains(people.get(0)) + &quot;/&quot; + working.containsAll(people));</span>
+<span class="fc" id="L113">        working.set(1, people.get(1));</span>
+<span class="fc" id="L114">        working.remove(0);</span>
+<span class="fc" id="L115">        working.remove(people.get(2));</span>
+<span class="fc" id="L116">        working.removeAll(List.of(people.get(3)));</span>
+<span class="fc" id="L117">        working.retainAll(List.of(people.get(1)));</span>
+<span class="fc" id="L118">        working.addAll(people);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        working.removeIf(person -&gt; person.getAge() &lt; 30);</span>
+<span class="fc" id="L120">        working.replaceAll(UuidPojoInformation::clone);</span>
+<span class="fc" id="L121">        working.sort(BY_NAME);</span>
+<span class="fc" id="L122">        System.out.println(&quot;sorted/subList: &quot; + working.stream().map(UuidPojoInformation::getName).toList()</span>
+<span class="fc" id="L123">                + &quot;/&quot; + working.subList(0, Math.min(2, working.size())).size());</span>
+<span class="fc" id="L124">        System.out.println(&quot;toArray length: &quot; + working.toArray(UuidPojoInformation[]::new).length);</span>
+<span class="fc" id="L125">        System.out.println(&quot;spliterator characteristics: &quot; + working.spliterator().characteristics());</span>
+<span class="fc" id="L126">        working.forEach(person -&gt; System.out.print(person.getName() + &quot; &quot;));</span>
+<span class="fc" id="L127">        System.out.println();</span>
+<span class="fc" id="L128">        working.clear();</span>
+<span class="fc" id="L129">        System.out.println(&quot;clear/isEmpty: &quot; + working.isEmpty());</span>
+<span class="fc" id="L130">    }</span>
+
+    private static void demonstrateSet(List&lt;UuidPojoInformation&gt; people) {
+<span class="fc" id="L133">        System.out.println(&quot;\nSet API operations:&quot;);</span>
+<span class="fc" id="L134">        LinkedHashSet&lt;UuidPojoInformation&gt; peopleSet = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L135">        people.forEach(peopleSet::add);</span>
+<span class="fc" id="L136">        System.out.println(&quot;add equal clone: &quot; + peopleSet.add(people.get(0).clone()));</span>
+<span class="fc" id="L137">        System.out.println(&quot;addAll/size: &quot; + peopleSet.addAll(people) + &quot;/&quot; + peopleSet.size());</span>
+<span class="fc" id="L138">        System.out.println(&quot;contains/containsAll: &quot;</span>
+<span class="fc" id="L139">                + peopleSet.contains(people.get(0)) + &quot;/&quot; + peopleSet.containsAll(people));</span>
+<span class="fc" id="L140">        System.out.println(&quot;toArray length: &quot; + peopleSet.toArray(UuidPojoInformation[]::new).length);</span>
+<span class="fc" id="L141">        peopleSet.iterator().forEachRemaining(person -&gt; System.out.print(person.getName() + &quot; &quot;));</span>
+<span class="fc" id="L142">        System.out.println();</span>
+
+<span class="fc" id="L144">        Set&lt;UuidPojoInformation&gt; working = new LinkedHashSet&lt;&gt;(peopleSet);</span>
+<span class="fc" id="L145">        working.remove(people.get(0));</span>
+<span class="fc" id="L146">        working.removeAll(Set.of(people.get(1)));</span>
+<span class="fc" id="L147">        working.retainAll(Set.of(people.get(2), people.get(3)));</span>
+<span class="fc" id="L148">        working.addAll(people);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        working.removeIf(person -&gt; person.getAge() &lt; 40);</span>
+<span class="fc" id="L150">        System.out.println(&quot;remove/removeAll/retainAll/removeIf size: &quot; + working.size());</span>
+<span class="fc" id="L151">        working.clear();</span>
+<span class="fc" id="L152">        System.out.println(&quot;clear/isEmpty: &quot; + working.isEmpty());</span>
+<span class="fc" id="L153">    }</span>
+
+    private static Map&lt;UUID, UuidPojoInformation&gt; demonstrateMap(List&lt;UuidPojoInformation&gt; people) {
+<span class="fc" id="L156">        System.out.println(&quot;\nMap API operations:&quot;);</span>
+<span class="fc" id="L157">        LinkedHashMap&lt;UUID, UuidPojoInformation&gt; peopleById = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L158">        Map&lt;UUID, UuidPojoInformation&gt; initialEntries = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L159">        people.forEach(person -&gt; initialEntries.put(person.getId(), person));</span>
+<span class="fc" id="L160">        peopleById.putAll(initialEntries);</span>
+<span class="fc" id="L161">        UuidPojoInformation first = people.get(0);</span>
+<span class="fc" id="L162">        peopleById.putIfAbsent(first.getId(), first);</span>
+<span class="fc" id="L163">        System.out.println(&quot;size/isEmpty: &quot; + peopleById.size() + &quot;/&quot; + peopleById.isEmpty());</span>
+<span class="fc" id="L164">        System.out.println(&quot;get/getOrDefault: &quot; + peopleById.get(first.getId()).getName() + &quot;/&quot;</span>
+<span class="fc" id="L165">                + peopleById.getOrDefault(new UUID(0, 1), first).getName());</span>
+<span class="fc" id="L166">        System.out.println(&quot;containsKey/containsValue: &quot;</span>
+<span class="fc" id="L167">                + peopleById.containsKey(first.getId()) + &quot;/&quot; + peopleById.containsValue(first));</span>
+<span class="fc" id="L168">        peopleById.replace(first.getId(), first.clone());</span>
+<span class="fc" id="L169">        peopleById.compute(first.getId(), (id, person) -&gt; person);</span>
+<span class="fc" id="L170">        peopleById.computeIfPresent(first.getId(), (id, person) -&gt; person.clone());</span>
+<span class="fc" id="L171">        UUID addedId = UUID.randomUUID();</span>
+<span class="fc" id="L172">        peopleById.computeIfAbsent(addedId,</span>
+<span class="fc" id="L173">                id -&gt; new UuidPojoInformation(id, &quot;Dorothy Vaughan&quot;, 32, 90000.0));</span>
+<span class="fc" id="L174">        peopleById.merge(first.getId(), first,</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">                (existing, incoming) -&gt; existing.getAge() &gt;= incoming.getAge() ? existing : incoming);</span>
+<span class="fc" id="L176">        peopleById.replaceAll((id, person) -&gt; person.clone());</span>
+<span class="fc" id="L177">        System.out.println(&quot;keySet/values/entrySet: &quot; + peopleById.keySet().size() + &quot;/&quot;</span>
+<span class="fc" id="L178">                + peopleById.values().size() + &quot;/&quot; + peopleById.entrySet().size());</span>
+<span class="fc" id="L179">        peopleById.forEach((id, person) -&gt; System.out.println(id + &quot; -&gt; &quot; + person.getName()));</span>
+<span class="fc" id="L180">        peopleById.entrySet().stream()</span>
+<span class="fc" id="L181">                .sorted(Map.Entry.comparingByValue())</span>
+<span class="fc" id="L182">                .forEach(entry -&gt; System.out.print(entry.getValue().getName() + &quot; &quot;));</span>
+<span class="fc" id="L183">        System.out.println();</span>
+
+<span class="fc" id="L185">        LinkedHashMap&lt;UUID, UuidPojoInformation&gt; working = new LinkedHashMap&lt;&gt;(peopleById);</span>
+<span class="fc" id="L186">        working.remove(addedId);</span>
+<span class="fc" id="L187">        working.remove(first.getId(), first.clone());</span>
+<span class="fc" id="L188">        working.clear();</span>
+<span class="fc" id="L189">        System.out.println(&quot;remove/clear/isEmpty: &quot; + working.size() + &quot;/&quot; + working.isEmpty());</span>
+<span class="fc" id="L190">        return peopleById;</span>
+    }
+
+    private static void demonstrateStreams(String sourceName, Collection&lt;UuidPojoInformation&gt; people) {
+<span class="fc" id="L194">        System.out.println(&quot;\nStream operations over &quot; + sourceName + &quot;:&quot;);</span>
+
+                // Keep adults, project each bean to its name, remove duplicate names, sort, and materialize an immutable list.
+<span class="fc" id="L197">        List&lt;String&gt; names = people.stream()</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">                .filter(person -&gt; person.getAge() &gt;= 35)</span>
+<span class="fc" id="L199">                .map(UuidPojoInformation::getName)</span>
+<span class="fc" id="L200">                .distinct()</span>
+<span class="fc" id="L201">                .sorted()</span>
+<span class="fc" id="L202">                .toList();</span>
+<span class="fc" id="L203">        System.out.println(&quot;filter/map/distinct/sorted/toList: &quot; + names);</span>
+
+        // flatMap turns one name into multiple word elements, then distinct/sorted normalizes the flattened result.
+<span class="fc" id="L206">        List&lt;String&gt; nameParts = people.stream()</span>
+<span class="fc" id="L207">                .flatMap(person -&gt; Arrays.stream(person.getName().split(&quot; &quot;)))</span>
+<span class="fc" id="L208">                .distinct()</span>
+<span class="fc" id="L209">                .sorted()</span>
+<span class="fc" id="L210">                .toList();</span>
+<span class="fc" id="L211">        System.out.println(&quot;flatMap: &quot; + nameParts);</span>
+
+        // mapMulti emits one downstream value per bean without creating a nested Stream for each bean.
+<span class="fc" id="L214">        List&lt;String&gt; mappedMulti = people.stream()</span>
+<span class="fc" id="L215">                .&lt;String&gt;mapMulti((person, downstream) -&gt; downstream.accept(person.getName()))</span>
+<span class="fc" id="L216">                .toList();</span>
+<span class="fc" id="L217">        System.out.println(&quot;mapMulti: &quot; + mappedMulti);</span>
+
+        // skip drops the first encounter-order element; limit keeps at most the next two.
+<span class="fc" id="L220">        List&lt;String&gt; window = people.stream()</span>
+<span class="fc" id="L221">                .skip(1)</span>
+<span class="fc" id="L222">                .limit(2)</span>
+<span class="fc" id="L223">                .map(UuidPojoInformation::getName)</span>
+<span class="fc" id="L224">                .toList();</span>
+<span class="fc" id="L225">        System.out.println(&quot;skip/limit: &quot; + window);</span>
+
+        // takeWhile/dropWhile require the preceding age sort so their prefix semantics are easy to see.
+<span class="fc" id="L228">        List&lt;UuidPojoInformation&gt; ageSorted = people.stream()</span>
+<span class="fc" id="L229">                .sorted(Comparator.comparingInt(UuidPojoInformation::getAge))</span>
+<span class="fc" id="L230">                .toList();</span>
+<span class="fc" id="L231">        System.out.println(&quot;takeWhile/dropWhile: &quot;</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">                + ageSorted.stream().takeWhile(person -&gt; person.getAge() &lt; 40).count() + &quot;/&quot;</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">                + ageSorted.stream().dropWhile(person -&gt; person.getAge() &lt; 40).count());</span>
+
+        // peek observes elements as they pass through; the terminal forEach forces the lazy pipeline to run.
+<span class="fc" id="L236">        System.out.println(&quot;peek/forEach:&quot;);</span>
+<span class="fc" id="L237">        people.stream().peek(person -&gt; System.out.println(&quot;visiting &quot; + person.getName()))</span>
+<span class="fc" id="L238">                .forEach(person -&gt; { });</span>
+
+        // These are terminal reductions; min/max use UuidPojoInformation's natural Comparable ordering.
+<span class="fc" id="L241">        System.out.println(&quot;count/min/max: &quot; + people.stream().count() + &quot;/&quot;</span>
+<span class="fc" id="L242">                + people.stream().min(Comparator.naturalOrder()).map(UuidPojoInformation::getName).orElse(&quot;none&quot;)</span>
+<span class="fc" id="L243">                + &quot;/&quot; + people.stream().max(Comparator.naturalOrder()).map(UuidPojoInformation::getName).orElse(&quot;none&quot;));</span>
+        // Match operations short-circuit when their answer is known; findFirst respects encounter order.
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        System.out.println(&quot;matches: &quot; + people.stream().anyMatch(person -&gt; person.getAge() &gt; 80) + &quot;/&quot;</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">                + people.stream().allMatch(person -&gt; person.getAge() &gt; 0) + &quot;/&quot;</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">                + people.stream().noneMatch(person -&gt; person.getAge() &lt; 0));</span>
+<span class="fc" id="L248">        System.out.println(&quot;findFirst/findAny: &quot; + people.stream().findFirst().map(UuidPojoInformation::getName)</span>
+<span class="fc" id="L249">                + &quot;/&quot; + people.stream().findAny().map(UuidPojoInformation::getName));</span>
+
+        // Primitive streams avoid boxing numeric values and provide aggregate statistics.
+<span class="fc" id="L252">        System.out.println(&quot;age summary statistics: &quot; + people.stream()</span>
+<span class="fc" id="L253">                .mapToInt(UuidPojoInformation::getAge).summaryStatistics());</span>
+<span class="fc" id="L254">        System.out.println(&quot;average age: &quot; + people.stream().mapToInt(UuidPojoInformation::getAge).average());</span>
+        // reduce combines only present salaries; the parallel sum uses an associative numeric reduction.
+<span class="fc" id="L256">        System.out.println(&quot;salary reduce: &quot; + people.stream().map(UuidPojoInformation::getSalary)</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">                .filter(salary -&gt; salary != null).reduce(0.0, Double::sum));</span>
+<span class="fc" id="L258">        System.out.println(&quot;parallel salary sum: &quot; + people.parallelStream()</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">                .map(UuidPojoInformation::getSalary).filter(salary -&gt; salary != null)</span>
+<span class="fc" id="L260">                .mapToDouble(Double::doubleValue).sum());</span>
+
+        // Collectors build grouped counts, a two-way partition, an ID lookup, joined text, and a Set.
+<span class="fc" id="L263">        Map&lt;Integer, Long&gt; ageGroups = people.stream().collect(Collectors.groupingBy(</span>
+<span class="fc" id="L264">                person -&gt; person.getAge() / 10 * 10, Collectors.counting()));</span>
+<span class="fc" id="L265">        Map&lt;Boolean, List&lt;String&gt;&gt; agePartitions = people.stream().collect(Collectors.partitioningBy(</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                person -&gt; person.getAge() &gt;= 40,</span>
+<span class="fc" id="L267">                Collectors.mapping(UuidPojoInformation::getName, Collectors.toList())));</span>
+<span class="fc" id="L268">        Map&lt;UUID, String&gt; namesById = people.stream().collect(Collectors.toMap(</span>
+                UuidPojoInformation::getId, UuidPojoInformation::getName));
+<span class="fc" id="L270">        String joinedNames = people.stream().map(UuidPojoInformation::getName)</span>
+<span class="fc" id="L271">                .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="fc" id="L272">        Set&lt;String&gt; namesAsSet = people.stream().map(UuidPojoInformation::getName)</span>
+<span class="fc" id="L273">                .collect(Collectors.toCollection(HashSet::new));</span>
+<span class="fc" id="L274">        System.out.println(&quot;grouping/partitioning/toMap: &quot; + ageGroups + &quot;/&quot; + agePartitions</span>
+<span class="fc" id="L275">                + &quot;/&quot; + namesById.size());</span>
+<span class="fc" id="L276">        System.out.println(&quot;joining/toCollection: &quot; + joinedNames + &quot;/&quot; + namesAsSet.size());</span>
+
+        // toArray(IntFunction) creates a correctly typed array from the stream contents.
+<span class="fc" id="L279">        UuidPojoInformation[] array = people.stream().toArray(UuidPojoInformation[]::new);</span>
+<span class="fc" id="L280">        System.out.println(&quot;toArray/parallel count: &quot; + array.length + &quot;/&quot; + people.parallelStream().count());</span>
+<span class="fc" id="L281">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
