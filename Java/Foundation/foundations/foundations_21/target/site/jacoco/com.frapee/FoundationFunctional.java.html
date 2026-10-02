@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationFunctional.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationFunctional.java</span></div><h1>FoundationFunctional.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
+/**
+ * Foundation guide to Java's standard functional interfaces.
+ * Use this class to compare transformations, predicates, suppliers, and actions.
+ */
+<span class="fc" id="L14">public class FoundationFunctional {</span>
+
+    /**
+     * Apply a one-input transformation.
+     * @param value input value
+     * @param function transformation to apply
+     * @return transformed value
+     */
+    public int applyFunction(int value, Function&lt;Integer, Integer&gt; function) {
+<span class="fc" id="L23">        return function.apply(value);</span>
+    }
+
+    /**
+     * Apply a two-input transformation.
+     * @param left first input
+     * @param right second input
+     * @param function transformation to apply
+     * @return transformed value
+     */
+    public int applyBiFunction(int left, int right,
+            BiFunction&lt;Integer, Integer, Integer&gt; function) {
+<span class="fc" id="L35">        return function.apply(left, right);</span>
+    }
+
+    /**
+     * Evaluate a condition supplied as a Predicate.
+     * @param value input value
+     * @param predicate condition to evaluate
+     * @return predicate result
+     */
+    public boolean testPredicate(int value, Predicate&lt;Integer&gt; predicate) {
+<span class="fc" id="L45">        return predicate.test(value);</span>
+    }
+
+    /**
+     * Produce a value on demand with a Supplier.
+     * @param supplier deferred value provider
+     * @return supplied value
+     */
+    public int supplyValue(Supplier&lt;Integer&gt; supplier) {
+<span class="fc" id="L54">        return supplier.get();</span>
+    }
+
+    /**
+     * Perform an action with a Consumer.
+     * @param value value passed to the consumer
+     * @param consumer action to invoke
+     */
+    public void acceptNumber(int value, Consumer&lt;Integer&gt; consumer) {
+<span class="fc" id="L63">        consumer.accept(value);</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Perform an action once for each value.
+     * @param values values passed one at a time
+     * @param consumer action invoked for each value
+     */
+    public void forEachNumber(List&lt;Integer&gt; values, Consumer&lt;Integer&gt; consumer) {
+<span class="fc" id="L72">        values.forEach(consumer);</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Execute a Consumer and convert a runtime failure to a status.
+     * @param value value passed to the consumer
+     * @param consumer action to invoke
+     * @return false when the consumer throws a RuntimeException
+     */
+    public boolean runSafely(int value, Consumer&lt;Integer&gt; consumer) {
+        try {
+<span class="fc" id="L83">            consumer.accept(value);</span>
+<span class="fc" id="L84">            return true;</span>
+<span class="fc" id="L85">        } catch (RuntimeException exception) {</span>
+<span class="fc" id="L86">            return false;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

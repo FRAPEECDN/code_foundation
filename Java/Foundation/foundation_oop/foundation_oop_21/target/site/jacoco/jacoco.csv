@@ -1,0 +1,26 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Foundation OOP - Java 21,com.fp.coding,CollectionEvolutionExamples,0,89,0,0,0,18,0,2,0,2
+Foundation OOP - Java 21,com.fp.coding,ExampleMenu.Section,0,12,0,0,0,1,0,1,0,1
+Foundation OOP - Java 21,com.fp.coding,Staff,0,97,3,11,0,13,3,10,0,6
+Foundation OOP - Java 21,com.fp.coding,UuidPojoExamples,1,119,1,1,0,19,1,2,0,2
+Foundation OOP - Java 21,com.fp.coding,AdvanceEnum,0,62,0,0,0,13,0,5,0,5
+Foundation OOP - Java 21,com.fp.coding,CollectionExamples,6,965,4,24,0,167,4,48,0,38
+Foundation OOP - Java 21,com.fp.coding,Developer,0,85,0,14,0,15,0,13,0,6
+Foundation OOP - Java 21,com.fp.coding,RecordInformation,0,56,0,6,0,8,0,5,0,2
+Foundation OOP - Java 21,com.fp.coding,Manager,0,79,0,10,0,14,0,11,0,6
+Foundation OOP - Java 21,com.fp.coding,EnumExamples,0,84,0,4,0,10,0,3,0,1
+Foundation OOP - Java 21,com.fp.coding,GenericExamples,3,240,2,6,0,39,2,6,0,3
+Foundation OOP - Java 21,com.fp.coding,InformationCatalog,0,85,0,2,0,15,0,10,0,9
+Foundation OOP - Java 21,com.fp.coding,ExampleMenu,20,211,1,7,5,43,2,20,1,17
+Foundation OOP - Java 21,com.fp.coding,PojoInformation,0,324,0,26,0,55,0,37,0,24
+Foundation OOP - Java 21,com.fp.coding,DepartmentExamples,0,83,0,0,0,10,0,2,0,2
+Foundation OOP - Java 21,com.fp.coding,InheritanceExamples,0,35,0,0,0,3,0,2,0,2
+Foundation OOP - Java 21,com.fp.coding,NameValidation,0,74,0,32,0,12,0,19,0,3
+Foundation OOP - Java 21,com.fp.coding,ModelExamples,0,48,0,0,0,11,0,1,0,1
+Foundation OOP - Java 21,com.fp.coding,Department,0,87,0,4,0,20,0,9,0,7
+Foundation OOP - Java 21,com.fp.coding,GenericShowcase,0,69,0,0,0,19,0,11,0,11
+Foundation OOP - Java 21,com.fp.coding,ObjectsOptionalExamples,9,172,0,0,2,30,2,4,2,4
+Foundation OOP - Java 21,com.fp.coding,StringEnum,0,71,0,0,0,14,0,6,0,6
+Foundation OOP - Java 21,com.fp.coding,Department.DeveloperAssignment,0,24,0,0,0,5,0,1,0,1
+Foundation OOP - Java 21,com.fp.coding,OrdinalEnum,0,33,0,0,0,6,0,1,0,1
+Foundation OOP - Java 21,com.fp.coding,UuidPojoInformation,0,228,0,20,0,49,0,29,0,19

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Department.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">foundations-pojo_21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">Department.java</span></div><h1>Department.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import lombok.Builder;
+import lombok.Data;
+
+/** Owns a department's manager, project owner, developers, and projects. */
+@Data
+public final class Department {
+    private final String name;
+    private final Manager manager;
+    private final ProjectOwner projectOwner;
+<span class="fc" id="L16">    private final List&lt;DeveloperAssignment&gt; developerAssignments = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L17">    private final List&lt;Project&gt; projects = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L18">    private final List&lt;ProjectAssignment&gt; projectAssignments = new ArrayList&lt;&gt;();</span>
+
+    /** Returns the normalized department name. */
+    public String getName() {
+<span class="fc" id="L22">        return name;</span>
+    }
+
+    /** Returns the department's required manager. */
+    public Manager getManager() {
+<span class="fc" id="L27">        return manager;</span>
+    }
+
+    /** Creates a department with its required manager and project owner. */
+    @Builder
+<span class="fc" id="L32">    public Department(String name, Manager manager, ProjectOwner projectOwner) {</span>
+<span class="pc bpc" id="L33" title="2 of 4 branches missed.">        if (name == null || name.isBlank()) {</span>
+<span class="nc" id="L34">            throw new IllegalArgumentException(&quot;department name must not be blank&quot;);</span>
+        }
+<span class="fc" id="L36">        this.name = name.strip();</span>
+<span class="fc" id="L37">        this.manager = Objects.requireNonNull(manager, &quot;manager&quot;);</span>
+<span class="fc" id="L38">        this.projectOwner = Objects.requireNonNull(projectOwner, &quot;projectOwner&quot;);</span>
+<span class="fc" id="L39">    }</span>
+
+    /** Adds a developer with a department level and happiness rating. */
+    public DeveloperAssignment addDeveloper(Developer developer, StaffLevel position, StaffContent happiness) {
+<span class="fc" id="L43">        DeveloperAssignment assignment = new DeveloperAssignment(developer, position, happiness);</span>
+<span class="fc" id="L44">        DeveloperAssignment existing = developerAssignments.stream()</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                .filter(item -&gt; item.developer() == developer)</span>
+<span class="fc" id="L46">                .findFirst()</span>
+<span class="fc" id="L47">                .orElse(null);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (existing != null) return existing;</span>
+<span class="fc" id="L49">        developerAssignments.add(assignment);</span>
+<span class="fc" id="L50">        return assignment;</span>
+    }
+
+    /** Removes a developer and any project assignments belonging to them. */
+    public boolean removeDeveloper(Developer developer) {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        boolean removed = developerAssignments.removeIf(assignment -&gt; assignment.developer() == developer);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (removed) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            projectAssignments.removeIf(assignment -&gt; assignment.staff() == developer);</span>
+        }
+<span class="fc" id="L59">        return removed;</span>
+    }
+
+    /** Removes a removable staff member; the required manager and owner cannot be removed. */
+    public boolean removeStaff(Staff staff) {
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">        return staff instanceof Developer developer &amp;&amp; removeDeveloper(developer);</span>
+    }
+
+    /** Returns a read-only snapshot of developer positions and ratings. */
+    public List&lt;DeveloperAssignment&gt; getDeveloperAssignments() {
+<span class="fc" id="L69">        return List.copyOf(developerAssignments);</span>
+    }
+
+    /** Returns a read-only snapshot of department projects. */
+    public List&lt;Project&gt; getProjects() {
+<span class="fc" id="L74">        return List.copyOf(projects);</span>
+    }
+
+    /** Returns a read-only snapshot of staff-to-project assignments. */
+    public List&lt;ProjectAssignment&gt; getProjectAssignments() {
+<span class="fc" id="L79">        return List.copyOf(projectAssignments);</span>
+    }
+
+    /** Adds a project owned by this department's project owner. */
+    public Project addProject(Project project) {
+<span class="fc" id="L84">        Objects.requireNonNull(project, &quot;project&quot;);</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (project.getProjectOwner() != projectOwner) {</span>
+<span class="nc" id="L86">            throw new IllegalArgumentException(&quot;project owner must match the department's project owner&quot;);</span>
+        }
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        if (projects.stream().noneMatch(existing -&gt; existing == project)) {</span>
+<span class="fc" id="L89">            projects.add(project);</span>
+        }
+<span class="fc" id="L91">        return project;</span>
+    }
+
+    /** Removes a project and any department assignments that refer to it. */
+    public boolean removeProject(Project project) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        boolean removed = projects.removeIf(existing -&gt; existing == project);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (removed) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            projectAssignments.removeIf(assignment -&gt; assignment.project() == project);</span>
+        }
+<span class="fc" id="L100">        return removed;</span>
+    }
+
+    /** Assigns a department project to one of its current staff members. */
+    public ProjectAssignment assignProject(Staff staff, Project project) {
+<span class="fc" id="L105">        Objects.requireNonNull(staff, &quot;staff&quot;);</span>
+<span class="fc" id="L106">        Objects.requireNonNull(project, &quot;project&quot;);</span>
+<span class="fc bfc" id="L107" title="All 4 branches covered.">        if (getStaffMembers().stream().noneMatch(member -&gt; member == staff)) {</span>
+<span class="fc" id="L108">            throw new IllegalArgumentException(&quot;staff member must belong to the department&quot;);</span>
+        }
+<span class="fc bfc" id="L110" title="All 4 branches covered.">        if (projects.stream().noneMatch(existing -&gt; existing == project)) {</span>
+<span class="fc" id="L111">            throw new IllegalArgumentException(&quot;project must belong to the department&quot;);</span>
+        }
+<span class="fc" id="L113">        ProjectAssignment assignment = new ProjectAssignment(staff, project);</span>
+<span class="fc" id="L114">        boolean alreadyAssigned = projectAssignments.stream()</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">            .anyMatch(existing -&gt; existing.staff() == staff &amp;&amp; existing.project() == project);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (!alreadyAssigned) projectAssignments.add(assignment);</span>
+<span class="fc" id="L117">        return assignment;</span>
+    }
+
+    /** Removes an existing staff-to-project assignment. */
+    public boolean unassignProject(Staff staff, Project project) {
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        return projectAssignments.removeIf(assignment -&gt; assignment.staff() == staff</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">                &amp;&amp; assignment.project() == project);</span>
+    }
+
+    /** Returns the required manager and owner together with assigned developers. */
+    public List&lt;Staff&gt; getStaffMembers() {
+<span class="fc" id="L128">        ArrayList&lt;Staff&gt; staffMembers = new ArrayList&lt;&gt;(developerAssignments.size() + 2);</span>
+<span class="fc" id="L129">        staffMembers.add(manager);</span>
+<span class="fc" id="L130">        staffMembers.add(projectOwner);</span>
+<span class="fc" id="L131">        developerAssignments.stream()</span>
+<span class="fc" id="L132">                .map(DeveloperAssignment::developer)</span>
+<span class="fc" id="L133">                .forEach(staffMembers::add);</span>
+<span class="fc" id="L134">        return List.copyOf(staffMembers);</span>
+    }
+
+    /** Sums annual salaries for all current department staff. */
+    public double getAnnualPayroll() {
+<span class="fc" id="L139">        return getStaffMembers().stream().mapToDouble(Staff::getAnnualSalary).sum();</span>
+    }
+
+    /** Holds a developer's role level and happiness rating within this department. */
+    public record DeveloperAssignment(Developer developer, StaffLevel position, StaffContent happiness) {
+<span class="fc" id="L144">        public DeveloperAssignment {</span>
+<span class="fc" id="L145">            Objects.requireNonNull(developer, &quot;developer&quot;);</span>
+<span class="fc" id="L146">            Objects.requireNonNull(position, &quot;position&quot;);</span>
+<span class="fc" id="L147">            Objects.requireNonNull(happiness, &quot;happiness&quot;);</span>
+<span class="fc" id="L148">        }</span>
+    }
+
+    /** Links one current department staff member to one current department project. */
+    public record ProjectAssignment(Staff staff, Project project) {
+<span class="fc" id="L153">        public ProjectAssignment {</span>
+<span class="fc" id="L154">            Objects.requireNonNull(staff, &quot;staff&quot;);</span>
+<span class="fc" id="L155">            Objects.requireNonNull(project, &quot;project&quot;);</span>
+<span class="fc" id="L156">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

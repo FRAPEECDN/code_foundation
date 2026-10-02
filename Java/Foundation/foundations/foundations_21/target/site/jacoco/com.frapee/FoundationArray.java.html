@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationArray.java</span></div><h1>FoundationArray.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.util.Arrays;
+
+/**
+ * Foundation guide to primitive arrays and array algorithms.
+ * Demonstrates custom binary and linear search, quicksort, merging, and the
+ * equivalent Java Arrays and stream utilities. Methods mutate input arrays only
+ * where their documentation says they sort or fill in place.
+ */
+<span class="fc" id="L11">public class FoundationArray {</span>
+
+    /**
+     * Binary search implementation.
+     * @param sArray - sorted array
+     * @param target - target value
+     * @return postion of target, -1 if not found.
+     */
+    public int findSortedArrayTarget(int[] sArray, int target) {
+<span class="fc" id="L20">        int left = 0;</span>
+<span class="fc" id="L21">        int right = sArray.length - 1;</span>
+
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        while(left &lt;= right) {</span>
+<span class="fc" id="L24">            int middle = left + (right - left) / 2;</span>
+
+<span class="fc bfc" id="L26" title="All 2 branches covered.">            if (sArray[middle] == target) {</span>
+<span class="fc" id="L27">                return middle;</span>
+            } 
+            
+<span class="fc bfc" id="L30" title="All 2 branches covered.">            if (sArray[middle] &lt; target) {</span>
+<span class="fc" id="L31">                left = middle + 1;</span>
+<span class="fc" id="L32">            } else {</span>
+<span class="fc" id="L33">                right = middle -1;</span>
+            }
+        }
+
+<span class="fc" id="L37">        return -1; // aka not found</span>
+    }
+
+    /**
+     * Simple linear search for an unsorted array.
+     * @param uArray - unsorted array
+     * @param target - target value
+     * @return postion of target, -1 if not found.
+     */
+    public int findUnSortedArrayTarget(int[] uArray, int target) {
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (int i = 0; i &lt; uArray.length; i++) {</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (uArray[i] == target) {</span>
+<span class="fc" id="L49">                return i;</span>
+            }
+        }
+<span class="fc" id="L52">        return -1;</span>
+    }
+
+    /*
+     * Quicksort implementation for arrays, not that it has 3 functions working together
+     */
+
+    /**
+     * Private function that swap elements in array
+     * @param tArray - array with elements
+     * @param x - position to swab
+     * @param y - other position to swab
+     */
+    private static void swap(int[] tArray, int x, int y) {
+<span class="fc" id="L66">        int temp = tArray[x];</span>
+<span class="fc" id="L67">        tArray[x] = tArray[y];</span>
+<span class="fc" id="L68">        tArray[y] = temp;</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Private function that process a partition array between a left and right position using pivot point.
+     * @param pArray array being partitioned
+     * @param left - left index
+     * @param right - right index
+     * @return postion of pivot after sorting the partition
+     */
+    private static int partitionPivot(int[] pArray, int left, int right) {
+<span class="fc" id="L79">        int pivotValue = pArray[right]; // choice pivot point</span>
+
+<span class="fc" id="L81">        int idx = left - 1; // Represents the last sorted known position</span>
+        // use right - 1 since pivot is rightmost value
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = left; i &lt;= right - 1; i++) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (pArray[i] &lt; pivotValue) {</span>
+<span class="fc" id="L85">                idx++;</span>
+<span class="fc" id="L86">                swap(pArray, idx, i);</span>
+            }
+        }
+<span class="fc" id="L89">        swap(pArray, idx + 1, right);</span>
+<span class="fc" id="L90">        return idx + 1;</span>
+    }
+
+    /**
+     * Quick sort algorithm implementation. Take unsorted array and sort it.
+     * Function is recursively being called to complete.
+     * @param unsortedArray array that is unsorted or partition of the array that remains unsorted.
+     * @param left - left index for sort to start
+     * @param right - right index for sort to start
+     */
+    private static void quickSort(int[] unsortedArray, int left, int right) {
+        
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (left &lt; right) {</span>
+<span class="fc" id="L103">            int pivot = partitionPivot(unsortedArray, left, right);</span>
+<span class="fc" id="L104">            quickSort(unsortedArray, left, pivot - 1);</span>
+<span class="fc" id="L105">            quickSort(unsortedArray, pivot + 1, right);</span>
+        }
+
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Sort unsorted array using Quick Sort method.
+     * @param unsortedArray - the unsorted array
+     */
+    public void sortArray(int[] unsortedArray) {
+<span class="fc" id="L115">        quickSort(unsortedArray, 0, unsortedArray.length - 1);</span>
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * Foundation function to merge pre-sorted arrays using 2 indexes for each array.
+     * @param lArray left array
+     * @param rArray right array
+     * @return merged array
+     */
+    public int[] mergeSortedArrays(int[] lArray, int[] rArray) {
+
+<span class="fc" id="L126">        int[] retArray = new int[lArray.length + rArray.length];</span>
+
+<span class="fc" id="L128">        int l = 0;</span>
+<span class="fc" id="L129">        int r = 0;</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int i = 0; i &lt; retArray.length; i++) {</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (r &gt;= rArray.length) {</span>
+<span class="fc" id="L132">                retArray[i] = lArray[l];</span>
+<span class="fc" id="L133">                l++;</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">            } else if (l &gt;= lArray.length) {</span>
+<span class="nc" id="L135">                retArray[i] = rArray[r];</span>
+<span class="nc" id="L136">                r++;</span>
+<span class="nc" id="L137">            } else {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                if (lArray[l] &lt; rArray[r]) {</span>
+<span class="fc" id="L139">                    retArray[i] = lArray[l];</span>
+<span class="fc" id="L140">                    l++;</span>
+<span class="fc" id="L141">                } else {</span>
+<span class="fc" id="L142">                    retArray[i] = rArray[r];</span>
+<span class="fc" id="L143">                    r++;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L148">        return retArray;</span>
+    }
+
+    /**
+     * Foundational function to merge and then sort array using own merging and sorting implementations.
+     * @param lArray left array
+     * @param rArray right array
+     * @return merged and sorted array
+     */
+    public int[] mergeAndSortArrays(int[] lArray, int[] rArray) {
+
+<span class="fc" id="L159">        int[] retArray = new int[lArray.length + rArray.length];</span>
+<span class="fc" id="L160">        int ndx = 0;</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (int i = 0; i &lt; lArray.length; i++) {</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">            if (ndx &gt;= retArray.length) {</span>
+<span class="nc" id="L163">                break;</span>
+            }
+<span class="fc" id="L165">            retArray[ndx] = lArray[i];</span>
+<span class="fc" id="L166">            ndx++;</span>
+        }
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        for (int i = 0; i &lt; rArray.length; i++) {</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            if (ndx &gt;= retArray.length) {</span>
+<span class="nc" id="L170">                break;</span>
+            }
+<span class="fc" id="L172">            retArray[ndx] = rArray[i];</span>
+<span class="fc" id="L173">            ndx++;</span>
+        }
+<span class="fc" id="L175">        quickSort(retArray, 0, retArray.length - 1);</span>
+<span class="fc" id="L176">        return retArray;</span>
+    }
+
+    /**
+     * Foundational function to merge and then sort array only using existing functionality of Java.
+     * @param lArray left array
+     * @param rArray right array
+     * @return merged and sorted array
+     */    
+    public int[] mergeAndSortUsingExisting(int[] lArray, int[] rArray) {
+<span class="fc" id="L186">        int[] retArray = new int[lArray.length + rArray.length];</span>
+<span class="fc" id="L187">        System.arraycopy(lArray, 0, retArray, 0, lArray.length);</span>
+<span class="fc" id="L188">        System.arraycopy(rArray, 0, retArray, lArray.length, rArray.length);</span>
+<span class="fc" id="L189">        Arrays.sort(retArray);</span>
+<span class="fc" id="L190">        return retArray;</span>
+    }
+
+    /**
+     * Example for Array using stream to check if array contains even numbers
+     * @param bArray - array being processed
+     * @return indicator if all elements are even
+     */
+    public boolean predicateArrayFindEven(int[] bArray) {
+
+<span class="fc" id="L200">        return Arrays.stream(bArray)</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            .allMatch(x-&gt; x % 2 == 0);</span>
+
+    }
+
+    /**
+     * Example for Array using stream to filter the array to return only even numbers
+     * @param bArray - array being processed
+     * @return array containing even numbers
+     */
+    public int[] arrayStreamFilter(int[] bArray) {
+<span class="fc" id="L211">        return Arrays.stream(bArray)</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">            .filter(x -&gt; x % 2 == 0)</span>
+<span class="fc" id="L213">            .toArray();</span>
+    }
+
+    /**
+     * Compare two arrays by contents using the Arrays utility class.
+     * @param leftArray first array
+     * @param rightArray second array
+     * @return true when both arrays contain the same values in the same order
+     */
+    public boolean arraysEquals(int[] leftArray, int[] rightArray) {
+<span class="fc" id="L223">        return Arrays.equals(leftArray, rightArray);</span>
+    }
+
+    /**
+     * Convert an array to its readable bracketed string representation.
+     * @param inputArray array to convert
+     * @return string representation of the array
+     */
+    public String arraysToString(int[] inputArray) {
+<span class="fc" id="L232">        return Arrays.toString(inputArray);</span>
+    }
+
+    /**
+     * Copy an array to a requested length using the Arrays utility class.
+     * @param inputArray array to copy
+     * @param newLength length of the returned array
+     * @return copied array, padded with zeroes or truncated as needed
+     */
+    public int[] arraysCopyOf(int[] inputArray, int newLength) {
+<span class="fc" id="L242">        return Arrays.copyOf(inputArray, newLength);</span>
+    }
+
+    /**
+     * Copy a selected range using the Arrays utility class.
+     * @param inputArray array to copy
+     * @param fromIndex inclusive starting index
+     * @param toIndex exclusive ending index
+     * @return copied range
+     */
+    public int[] arraysCopyOfRange(int[] inputArray, int fromIndex, int toIndex) {
+<span class="fc" id="L253">        return Arrays.copyOfRange(inputArray, fromIndex, toIndex);</span>
+    }
+
+    /**
+     * Fill every element of an array with one value.
+     * @param inputArray array to modify
+     * @param value value assigned to every element
+     */
+    public void arraysFill(int[] inputArray, int value) {
+<span class="fc" id="L262">        Arrays.fill(inputArray, value);</span>
+<span class="fc" id="L263">    }</span>
+
+    /**
+     * Find the first index where two arrays differ.
+     * @param leftArray first array
+     * @param rightArray second array
+     * @return first mismatch index, or -1 when arrays match
+     */
+    public int arraysMismatch(int[] leftArray, int[] rightArray) {
+<span class="fc" id="L272">        return Arrays.mismatch(leftArray, rightArray);</span>
+    }
+
+    /**
+     * Populate an array from each element index.
+     * @param inputArray array to modify
+     */
+    public void arraysSetAll(int[] inputArray) {
+<span class="fc" id="L280">        Arrays.setAll(inputArray, index -&gt; index * -1);</span>
+<span class="fc" id="L281">    }</span>
+
+    /**
+     * Sort an array using Java's parallel sorting implementation.
+     * @param inputArray array to sort in place
+     */
+    public void arraysParallelSort(int[] inputArray) {
+<span class="fc" id="L288">        Arrays.parallelSort(inputArray);</span>
+<span class="fc" id="L289">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

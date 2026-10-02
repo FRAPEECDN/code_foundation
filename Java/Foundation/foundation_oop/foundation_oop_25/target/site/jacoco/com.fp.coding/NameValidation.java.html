@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NameValidation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">NameValidation.java</span></div><h1>NameValidation.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.text.Normalizer;
+
+/** Shared name normalization and validation for the information examples. */
+final class NameValidation {
+    private NameValidation() {
+    }
+
+    static String normalize(String name) {
+<span class="fc bfc" id="L11" title="All 2 branches covered.">        if (name == null) {</span>
+<span class="fc" id="L12">            throw invalidName();</span>
+        }
+
+<span class="fc" id="L15">        String normalized = Normalizer.normalize(name.strip(), Normalizer.Form.NFC);</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        if (normalized.isEmpty()</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">                || normalized.codePoints().noneMatch(Character::isLetter)</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">                || !normalized.codePoints().allMatch(NameValidation::isAllowed)) {</span>
+<span class="fc" id="L19">            throw invalidName();</span>
+        }
+<span class="fc" id="L21">        return normalized;</span>
+    }
+
+    private static boolean isAllowed(int codePoint) {
+<span class="fc" id="L25">        int type = Character.getType(codePoint);</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        return Character.isLetter(codePoint)</span>
+<span class="fc bfc" id="L27" title="All 22 branches covered.">                || Character.isWhitespace(codePoint)</span>
+                || type == Character.NON_SPACING_MARK
+                || type == Character.COMBINING_SPACING_MARK
+                || type == Character.ENCLOSING_MARK
+                || codePoint == '\''
+                || codePoint == 0x2018
+                || codePoint == 0x2019
+                || codePoint == '-'
+                || codePoint == 0x2010
+                || codePoint == 0x2011
+                || codePoint == '.';
+    }
+
+    private static IllegalArgumentException invalidName() {
+<span class="fc" id="L41">        return new IllegalArgumentException(</span>
+                &quot;name must contain a letter and may include whitespace, apostrophes, hyphens, or periods&quot;);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Project.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">foundations-pojo_17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">Project.java</span></div><h1>Project.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
+
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+/** Project details and a date-ordered lifecycle history owned by a project owner. */
+@Data
+@ToString
+@EqualsAndHashCode
+public final class Project {
+    private final ProjectOwner projectOwner;
+    private final String projectName;
+    private final String sponsor;
+    private final double budget;
+    private final LocalDate startDate;
+    private final LocalDate deadline;
+    @Setter(AccessLevel.NONE)
+    private ProjectStatus status;
+    @Getter(AccessLevel.NONE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private final Map&lt;ProjectStatus, LocalDate&gt; statusHistory;
+
+    public ProjectOwner getProjectOwner() {
+<span class="fc" id="L36">        return projectOwner;</span>
+    }
+
+    public String getProjectName() {
+<span class="nc" id="L40">        return projectName;</span>
+    }
+
+    public String getSponsor() {
+<span class="nc" id="L44">        return sponsor;</span>
+    }
+
+    public double getBudget() {
+<span class="fc" id="L48">        return budget;</span>
+    }
+
+    public LocalDate getStartDate() {
+<span class="fc" id="L52">        return startDate;</span>
+    }
+
+    public LocalDate getDeadline() {
+<span class="fc" id="L56">        return deadline;</span>
+    }
+
+    public synchronized ProjectStatus getStatus() {
+<span class="fc" id="L60">        return status;</span>
+    }
+
+    @Builder
+    public Project(
+            ProjectOwner projectOwner,
+            String projectName,
+            String sponsor,
+            double budget,
+            LocalDate startDate,
+            LocalDate deadline,
+<span class="fc" id="L71">            LocalDate registeredOn) {</span>
+<span class="fc" id="L72">        this.projectOwner = Objects.requireNonNull(projectOwner, &quot;projectOwner&quot;);</span>
+<span class="fc" id="L73">        this.projectName = requireText(projectName, &quot;projectName&quot;);</span>
+<span class="fc" id="L74">        this.sponsor = requireText(sponsor, &quot;sponsor&quot;);</span>
+<span class="pc bpc" id="L75" title="2 of 4 branches missed.">        if (!Double.isFinite(budget) || budget &lt; 0) {</span>
+<span class="nc" id="L76">            throw new IllegalArgumentException(&quot;budget must be finite and 0 or above&quot;);</span>
+        }
+<span class="fc" id="L78">        this.budget = budget;</span>
+<span class="fc" id="L79">        this.startDate = Objects.requireNonNull(startDate, &quot;startDate&quot;);</span>
+<span class="fc" id="L80">        this.deadline = Objects.requireNonNull(deadline, &quot;deadline&quot;);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (deadline.isBefore(startDate)) {</span>
+<span class="nc" id="L82">            throw new IllegalArgumentException(&quot;deadline must not be before startDate&quot;);</span>
+        }
+<span class="fc" id="L84">        LocalDate registrationDate = Objects.requireNonNull(registeredOn, &quot;registeredOn&quot;);</span>
+<span class="fc" id="L85">        this.status = ProjectStatus.REGISTERED;</span>
+<span class="fc" id="L86">        this.statusHistory = new EnumMap&lt;&gt;(ProjectStatus.class);</span>
+<span class="fc" id="L87">        this.statusHistory.put(ProjectStatus.REGISTERED, registrationDate);</span>
+<span class="fc" id="L88">        projectOwner.registerProject(this);</span>
+<span class="fc" id="L89">    }</span>
+
+    /** Returns an immutable snapshot of each lifecycle status and its transition date. */
+    public synchronized Map&lt;ProjectStatus, LocalDate&gt; getStatusHistory() {
+<span class="fc" id="L93">        return Collections.unmodifiableMap(new EnumMap&lt;&gt;(statusHistory));</span>
+    }
+
+    /** Changes status only along an allowed transition and nondecreasing timeline. */
+    public synchronized void transitionTo(ProjectStatus nextStatus, LocalDate reachedOn) {
+<span class="fc" id="L98">        Objects.requireNonNull(nextStatus, &quot;nextStatus&quot;);</span>
+<span class="fc" id="L99">        LocalDate transitionDate = Objects.requireNonNull(reachedOn, &quot;reachedOn&quot;);</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (!status.canTransitionTo(nextStatus)) {</span>
+<span class="fc" id="L101">            throw new IllegalStateException(&quot;cannot transition project from &quot; + status + &quot; to &quot; + nextStatus);</span>
+        }
+<span class="fc" id="L103">        LocalDate previousDate = statusHistory.get(status);</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (transitionDate.isBefore(previousDate)) {</span>
+<span class="fc" id="L105">            throw new IllegalArgumentException(&quot;status date must not precede the previous status date&quot;);</span>
+        }
+<span class="fc" id="L107">        status = nextStatus;</span>
+<span class="fc" id="L108">        statusHistory.put(nextStatus, transitionDate);</span>
+<span class="fc" id="L109">    }</span>
+
+    private static String requireText(String value, String fieldName) {
+<span class="pc bpc" id="L112" title="2 of 4 branches missed.">        if (value == null || value.isBlank()) {</span>
+<span class="nc" id="L113">            throw new IllegalArgumentException(fieldName + &quot; must not be blank&quot;);</span>
+        }
+<span class="fc" id="L115">        return value.strip();</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

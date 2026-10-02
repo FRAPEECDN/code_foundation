@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationAsync.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationAsync.java</span></div><h1>FoundationAsync.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.javatuples.Pair;
+
+/**
+ * Foundation guide to Java concurrency and asynchronous execution.
+ * Demonstrates platform threads, executor tasks, Future,
+ * CompletableFuture composition, and coordination primitives such as latches,
+ * atomics, locks, and semaphores.
+ */
+<span class="fc" id="L21">public class FoundationAsync {</span>
+
+    /**
+     * Factorial function with simple loop that will be run a sync
+     * @param number input number being calculated
+     * @return factorial for the number
+     */
+    private long factorial(long number) {
+<span class="fc" id="L29">        validateFactorialInput(number);</span>
+<span class="fc" id="L30">        long result = 1;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        for (long i = number; i &gt; 0; i--) {</span>
+<span class="fc" id="L32">            result = Math.multiplyExact(result, i);</span>
+        }
+<span class="fc" id="L34">        return result;</span>
+    }
+
+    private void validateFactorialInput(long number) {
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if (number &lt; 0 || number &gt; 20) {</span>
+<span class="fc" id="L39">            throw new IllegalArgumentException(&quot;Factorial input must be between 0 and 20&quot;);</span>
+        }
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Running async as simple thread
+     * @param number to process factorial of
+     * @return
+     */
+    public long useThread(int number) {
+<span class="fc" id="L49">        validateFactorialInput(number);</span>
+<span class="fc" id="L50">        ThreadReturnable factorialThread = new ThreadReturnable();</span>
+<span class="fc" id="L51">        factorialThread.setNumber(number);</span>
+<span class="fc" id="L52">        Thread newThread = new Thread(factorialThread);</span>
+<span class="fc" id="L53">        newThread.start();</span>
+        try {
+<span class="fc" id="L55">            newThread.join();</span>
+<span class="nc" id="L56">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L57">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L58">            throw new IllegalStateException(&quot;Interrupted while waiting for factorial thread&quot;, e);</span>
+<span class="fc" id="L59">        }</span>
+<span class="fc" id="L60">        return factorialThread.getValue();</span>
+    }
+
+    /**
+     * Running async as CompletableFuture
+     * @param number to process factorial of
+     * @return Pair tuple containing zero polling iterations and result
+     */
+    public Pair&lt;Long, Long&gt; useCompletable(int number) {
+<span class="fc" id="L69">        validateFactorialInput(number);</span>
+<span class="fc" id="L70">        CompletableFuture&lt;Long&gt; completableFuture = CompletableFuture.supplyAsync(() -&gt; factorial(number));</span>
+        try {
+<span class="fc" id="L72">            return new Pair&lt;Long, Long&gt;(0L, completableFuture.get());</span>
+<span class="nc" id="L73">        } catch (InterruptedException | ExecutionException e) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (e instanceof InterruptedException) {</span>
+<span class="nc" id="L75">                Thread.currentThread().interrupt();</span>
+            }
+<span class="nc" id="L77">            throw new IllegalStateException(&quot;Unable to complete factorial&quot;, e);</span>
+        }
+    }
+
+    /**
+     * Running async as a Task from a thread pool
+     * @param number to process factorial of
+     * @return Pair tuple containing zero polling iterations and result
+     */
+    public Pair&lt;Long, Long&gt; useTask(int number) {
+<span class="fc" id="L87">        validateFactorialInput(number);</span>
+<span class="fc" id="L88">        ExecutorService executor = Executors.newCachedThreadPool();</span>
+        try {
+<span class="fc" id="L90">            Future&lt;Long&gt; futureTask = executor.submit(() -&gt; factorial(number));</span>
+            try {
+<span class="fc" id="L92">                return new Pair&lt;Long, Long&gt;(0L, futureTask.get());</span>
+<span class="nc" id="L93">            } catch (InterruptedException | ExecutionException e) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                if (e instanceof InterruptedException) {</span>
+<span class="nc" id="L95">                    Thread.currentThread().interrupt();</span>
+                }
+<span class="nc" id="L97">                throw new IllegalStateException(&quot;Unable to complete factorial task&quot;, e);</span>
+            }
+        } finally {
+<span class="fc" id="L100">            executor.shutdown();</span>
+        }
+    }
+
+    /**
+     * CompletableFuture pipeline example using thenApply to transform a value asynchronously.
+     * @param number to process factorial of
+     * @return factorial result
+     */
+    public long useCompletablePipeline(int number) {
+<span class="fc" id="L110">        validateFactorialInput(number);</span>
+<span class="fc" id="L111">        return CompletableFuture.supplyAsync(() -&gt; (long) number)</span>
+<span class="fc" id="L112">            .thenApply(this::factorial)</span>
+<span class="fc" id="L113">            .join();</span>
+    }
+
+    /**
+     * CompletableFuture composition example using thenCombine.
+     * @param left first factorial input
+     * @param right second factorial input
+     * @return sum of both factorial results
+     */
+    public long useCompletableCombine(int left, int right) {
+<span class="fc" id="L123">        validateFactorialInput(left);</span>
+<span class="fc" id="L124">        validateFactorialInput(right);</span>
+<span class="fc" id="L125">        CompletableFuture&lt;Long&gt; leftFuture = CompletableFuture.supplyAsync(() -&gt; factorial(left));</span>
+<span class="fc" id="L126">        CompletableFuture&lt;Long&gt; rightFuture = CompletableFuture.supplyAsync(() -&gt; factorial(right));</span>
+<span class="fc" id="L127">        return leftFuture.thenCombine(rightFuture, Long::sum).join();</span>
+    }
+
+    /**
+     * CompletableFuture coordination example using allOf to await multiple tasks.
+     * @param numbers factorial inputs
+     * @return factorial results in input order
+     */
+    public long[] useCompletableAll(int[] numbers) {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        for (int number : numbers) {</span>
+<span class="fc" id="L137">            validateFactorialInput(number);</span>
+        }
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L140">        CompletableFuture&lt;Long&gt;[] futures = new CompletableFuture[numbers.length];</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        for (int i = 0; i &lt; numbers.length; i++) {</span>
+<span class="fc" id="L142">            int number = numbers[i];</span>
+<span class="fc" id="L143">            futures[i] = CompletableFuture.supplyAsync(() -&gt; factorial(number));</span>
+        }
+<span class="fc" id="L145">        CompletableFuture.allOf(futures).join();</span>
+<span class="fc" id="L146">        long[] results = new long[numbers.length];</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int i = 0; i &lt; futures.length; i++) {</span>
+<span class="fc" id="L148">            results[i] = futures[i].join();</span>
+        }
+<span class="fc" id="L150">        return results;</span>
+    }
+
+    /**
+     * CountDownLatch example where the caller waits for all submitted tasks.
+     * @param taskCount number of tasks to complete
+     * @return number of tasks that completed
+     */
+    public int useCountDownLatch(int taskCount) {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (taskCount &lt; 0) {</span>
+<span class="nc" id="L160">            throw new IllegalArgumentException(&quot;Task count must be non-negative&quot;);</span>
+        }
+<span class="fc" id="L162">        CountDownLatch latch = new CountDownLatch(taskCount);</span>
+<span class="fc" id="L163">        ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, taskCount));</span>
+        try {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            for (int i = 0; i &lt; taskCount; i++) {</span>
+<span class="fc" id="L166">                executor.submit(latch::countDown);</span>
+            }
+<span class="fc" id="L168">            awaitLatch(latch);</span>
+        } finally {
+<span class="fc" id="L170">            executor.shutdown();</span>
+        }
+<span class="fc" id="L172">        return taskCount;</span>
+    }
+
+    /**
+     * AtomicInteger example for safely updating shared state across tasks.
+     * @param taskCount number of concurrent tasks
+     * @param incrementsPerTask increments performed by each task
+     * @return final counter value
+     */
+    public int useAtomicCounter(int taskCount, int incrementsPerTask) {
+<span class="fc" id="L182">        validateCounterInputs(taskCount, incrementsPerTask);</span>
+<span class="fc" id="L183">        AtomicInteger counter = new AtomicInteger();</span>
+<span class="fc" id="L184">        ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, taskCount));</span>
+        try {
+<span class="fc" id="L186">            Future&lt;?&gt;[] tasks = new Future&lt;?&gt;[taskCount];</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            for (int i = 0; i &lt; taskCount; i++) {</span>
+<span class="fc" id="L188">                tasks[i] = executor.submit(() -&gt; {</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                    for (int increment = 0; increment &lt; incrementsPerTask; increment++) {</span>
+<span class="fc" id="L190">                        counter.incrementAndGet();</span>
+                    }
+<span class="fc" id="L192">                });</span>
+            }
+<span class="fc" id="L194">            waitForTasks(tasks);</span>
+        } finally {
+<span class="fc" id="L196">            executor.shutdown();</span>
+        }
+<span class="fc" id="L198">        return counter.get();</span>
+    }
+
+    /**
+     * ReentrantLock example for protecting a shared counter.
+     * @param taskCount number of concurrent tasks
+     * @param incrementsPerTask increments performed by each task
+     * @return final counter value
+     */
+    public int useReentrantLock(int taskCount, int incrementsPerTask) {
+<span class="fc" id="L208">        validateCounterInputs(taskCount, incrementsPerTask);</span>
+<span class="fc" id="L209">        ReentrantLock lock = new ReentrantLock();</span>
+<span class="fc" id="L210">        int[] counter = {0};</span>
+<span class="fc" id="L211">        ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, taskCount));</span>
+        try {
+<span class="fc" id="L213">            Future&lt;?&gt;[] tasks = new Future&lt;?&gt;[taskCount];</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            for (int i = 0; i &lt; taskCount; i++) {</span>
+<span class="fc" id="L215">                tasks[i] = executor.submit(() -&gt; {</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                    for (int increment = 0; increment &lt; incrementsPerTask; increment++) {</span>
+<span class="fc" id="L217">                        lock.lock();</span>
+                        try {
+<span class="fc" id="L219">                            counter[0]++;</span>
+                        } finally {
+<span class="fc" id="L221">                            lock.unlock();</span>
+                        }
+                    }
+<span class="fc" id="L224">                });</span>
+            }
+<span class="fc" id="L226">            waitForTasks(tasks);</span>
+        } finally {
+<span class="fc" id="L228">            executor.shutdown();</span>
+        }
+<span class="fc" id="L230">        return counter[0];</span>
+    }
+
+    /**
+     * Semaphore example for limiting the number of tasks in a critical section.
+     * @param taskCount number of concurrent tasks
+     * @param permits maximum number of concurrent holders
+     * @return number of tasks that completed
+     */
+    public int useSemaphore(int taskCount, int permits) {
+<span class="pc bpc" id="L240" title="2 of 4 branches missed.">        if (taskCount &lt; 0 || permits &lt;= 0) {</span>
+<span class="nc" id="L241">            throw new IllegalArgumentException(&quot;Task count must be non-negative and permits must be positive&quot;);</span>
+        }
+<span class="fc" id="L243">        Semaphore semaphore = new Semaphore(permits);</span>
+<span class="fc" id="L244">        ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, taskCount));</span>
+        try {
+<span class="fc" id="L246">            Future&lt;?&gt;[] tasks = new Future&lt;?&gt;[taskCount];</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">            for (int i = 0; i &lt; taskCount; i++) {</span>
+<span class="fc" id="L248">                tasks[i] = executor.submit(() -&gt; {</span>
+                    try {
+<span class="fc" id="L250">                        semaphore.acquire();</span>
+<span class="nc" id="L251">                    } catch (InterruptedException exception) {</span>
+<span class="nc" id="L252">                        Thread.currentThread().interrupt();</span>
+<span class="nc" id="L253">                        throw new IllegalStateException(&quot;Interrupted while acquiring semaphore&quot;, exception);</span>
+<span class="fc" id="L254">                    }</span>
+                    try {
+                        // Work would be performed while holding one permit.
+                    } finally {
+<span class="fc" id="L258">                        semaphore.release();</span>
+                    }
+<span class="fc" id="L260">                });</span>
+            }
+<span class="fc" id="L262">            waitForTasks(tasks);</span>
+        } finally {
+<span class="fc" id="L264">            executor.shutdown();</span>
+        }
+<span class="fc" id="L266">        return taskCount;</span>
+    }
+
+    private void validateCounterInputs(int taskCount, int incrementsPerTask) {
+<span class="pc bpc" id="L270" title="2 of 4 branches missed.">        if (taskCount &lt; 0 || incrementsPerTask &lt; 0) {</span>
+<span class="nc" id="L271">            throw new IllegalArgumentException(&quot;Task count and increments must be non-negative&quot;);</span>
+        }
+<span class="fc" id="L273">    }</span>
+
+    private void awaitLatch(CountDownLatch latch) {
+        try {
+<span class="fc" id="L277">            latch.await();</span>
+<span class="nc" id="L278">        } catch (InterruptedException exception) {</span>
+<span class="nc" id="L279">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L280">            throw new IllegalStateException(&quot;Interrupted while waiting for tasks&quot;, exception);</span>
+<span class="fc" id="L281">        }</span>
+<span class="fc" id="L282">    }</span>
+
+    private void waitForTasks(Future&lt;?&gt;[] tasks) {
+        try {
+<span class="fc bfc" id="L286" title="All 2 branches covered.">            for (Future&lt;?&gt; task : tasks) {</span>
+<span class="fc" id="L287">                task.get();</span>
+            }
+<span class="nc" id="L289">        } catch (InterruptedException exception) {</span>
+<span class="nc" id="L290">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L291">            throw new IllegalStateException(&quot;Interrupted while waiting for tasks&quot;, exception);</span>
+<span class="nc" id="L292">        } catch (ExecutionException exception) {</span>
+<span class="nc" id="L293">            throw new IllegalStateException(&quot;A task failed&quot;, exception.getCause());</span>
+<span class="fc" id="L294">        }</span>
+<span class="fc" id="L295">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

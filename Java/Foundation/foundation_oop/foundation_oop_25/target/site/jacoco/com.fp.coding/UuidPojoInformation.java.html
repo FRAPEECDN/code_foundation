@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UuidPojoInformation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">UuidPojoInformation.java</span></div><h1>UuidPojoInformation.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * Mutable UUID-identified bean demonstrating common Java object contracts.
+ *
+ * &lt;p&gt;This example implements the project {@link Information} interface,
+ * {@link Comparable} for deterministic natural ordering, {@link Serializable}
+ * for Java object streams, and {@link Cloneable} for an independent same-identity
+ * copy. The natural order is case-insensitive by name, then uses exact name, age,
+ * salary, and UUID as tie-breakers; it is consistent with {@link #equals(Object)}.
+ *
+ * &lt;p&gt;Serialization writes the non-static instance state, including the UUID.
+ * {@code serialVersionUID} identifies this class's serialized form. Java native
+ * deserialization bypasses constructors, so object streams should only be read
+ * from trusted sources. Equality and hashing include mutable value fields; do not
+ * change those fields while this object is stored in a hash-based collection.
+ */
+public final class UuidPojoInformation
+        implements Information, Comparable&lt;UuidPojoInformation&gt;, Serializable, Cloneable {
+    /** Version identifier for this class's Java serialization form. */
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /** Natural ordering: case-insensitive name, exact name, age, salary, then UUID. */
+<span class="fc" id="L31">    private static final Comparator&lt;UuidPojoInformation&gt; NATURAL_ORDER =</span>
+<span class="fc" id="L32">            Comparator.comparing(UuidPojoInformation::getName, String.CASE_INSENSITIVE_ORDER)</span>
+<span class="fc" id="L33">                    .thenComparing(UuidPojoInformation::getName)</span>
+<span class="fc" id="L34">                    .thenComparingInt(UuidPojoInformation::getAge)</span>
+<span class="fc" id="L35">                    .thenComparing(UuidPojoInformation::getSalary,</span>
+<span class="fc" id="L36">                            Comparator.nullsFirst(Comparator.naturalOrder()))</span>
+<span class="fc" id="L37">                    .thenComparing(UuidPojoInformation::getId);</span>
+
+    /** Alternate ordering by age, then by the natural name-based ordering. */
+<span class="fc" id="L40">    public static final Comparator&lt;UuidPojoInformation&gt; BY_AGE =</span>
+<span class="fc" id="L41">            Comparator.comparingInt(UuidPojoInformation::getAge).thenComparing(NATURAL_ORDER);</span>
+
+    private final UUID id;
+    private String name;
+    private int age;
+    private Double salary;
+
+    /** Creates an example bean with a generated UUID and placeholder values. */
+    public UuidPojoInformation() {
+<span class="fc" id="L50">        this(UUID.randomUUID(), &quot;Unknown&quot;, 1, null);</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Creates a bean with a newly generated UUID.
+     *
+     * @param name valid personal name
+     * @param age positive age
+     * @param salary finite non-negative salary, or null when unspecified
+     */
+    public UuidPojoInformation(String name, int age, Double salary) {
+<span class="fc" id="L61">        this(UUID.randomUUID(), name, age, salary);</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Creates a bean with an explicit UUID, useful when restoring stored identity.
+     *
+     * @param id non-null identifier
+     * @param name valid personal name
+     * @param age positive age
+     * @param salary finite non-negative salary, or null when unspecified
+     * @throws NullPointerException if {@code id} is null
+     * @throws IllegalArgumentException if a name, age, or salary is invalid
+     */
+<span class="fc" id="L74">    public UuidPojoInformation(UUID id, String name, int age, Double salary) {</span>
+<span class="fc" id="L75">        this.id = Objects.requireNonNull(id, &quot;id&quot;);</span>
+<span class="fc" id="L76">        setName(name);</span>
+<span class="fc" id="L77">        setAge(age);</span>
+<span class="fc" id="L78">        setSalary(salary);</span>
+<span class="fc" id="L79">    }</span>
+
+    /** @return the immutable UUID identifying this bean */
+    public UUID getId() {
+<span class="fc" id="L83">        return id;</span>
+    }
+
+    /** @return the normalized name */
+    public String getName() {
+<span class="fc" id="L88">        return name;</span>
+    }
+
+    /**
+     * Replaces this bean's name after validation and normalization.
+     *
+     * @param name valid personal name; surrounding whitespace is removed
+     * @throws IllegalArgumentException if the name is null or invalid
+     */
+    public void setName(String name) {
+<span class="fc" id="L98">        this.name = NameValidation.normalize(name);</span>
+<span class="fc" id="L99">    }</span>
+
+    /** @return the positive age */
+    public int getAge() {
+<span class="fc" id="L103">        return age;</span>
+    }
+
+    /**
+     * Sets the age.
+     *
+     * @param age positive age
+     * @throws IllegalArgumentException if {@code age} is not positive
+     */
+    public void setAge(int age) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (age &lt;= 0) {</span>
+<span class="fc" id="L114">            throw new IllegalArgumentException(&quot;age must be greater than 0&quot;);</span>
+        }
+<span class="fc" id="L116">        this.age = age;</span>
+<span class="fc" id="L117">    }</span>
+
+    /** @return the optional salary, or null when it is unspecified */
+    public Double getSalary() {
+<span class="fc" id="L121">        return salary;</span>
+    }
+
+    /**
+     * Sets the optional salary.
+     *
+     * @param salary finite non-negative salary, or null when unspecified
+     * @throws IllegalArgumentException if a non-null salary is negative or non-finite
+     */
+    public void setSalary(Double salary) {
+<span class="fc bfc" id="L131" title="All 6 branches covered.">        if (salary != null &amp;&amp; (!Double.isFinite(salary) || salary &lt; 0)) {</span>
+<span class="fc" id="L132">            throw new IllegalArgumentException(&quot;salary must be finite and 0 or above&quot;);</span>
+        }
+<span class="fc" id="L134">        this.salary = salary;</span>
+<span class="fc" id="L135">    }</span>
+
+    @Override
+    public String summary() {
+<span class="fc" id="L139">        return &quot;UuidPojoInformation[id=%s, name='%s', age=%d, salary=%s]&quot;</span>
+<span class="fc" id="L140">                .formatted(id, name, age, salary);</span>
+    }
+
+    /**
+    * Compares beans by case-insensitive name, exact name, age, salary, then UUID.
+     *
+     * @param other bean to compare with
+     * @return a negative value, zero, or a positive value as this bean sorts before,
+    *         equal to, or after {@code other}; zero exactly when {@link #equals(Object)} is true
+     * @throws NullPointerException if {@code other} is null
+     */
+    @Override
+    public int compareTo(UuidPojoInformation other) {
+<span class="fc" id="L153">        return NATURAL_ORDER.compare(this, Objects.requireNonNull(other, &quot;other&quot;));</span>
+    }
+
+    /**
+     * Creates a new bean with the same name, age, and salary but a newly generated UUID.
+     *
+     * &lt;p&gt;The new bean represents a different identity and therefore is not equal to
+     * this bean, even though its non-identity values match.
+     *
+     * @return a bean with copied values and a new identifier
+     */
+    public UuidPojoInformation copyWithNewId() {
+<span class="fc" id="L165">        return new UuidPojoInformation(name, age, salary);</span>
+    }
+
+    /**
+     * Creates an independent copy retaining this bean's UUID and current values.
+     *
+     * &lt;p&gt;This class has no mutable object-valued fields: {@link UUID}, {@link String},
+     * and {@link Double} are immutable, while age is primitive. Copying those values
+     * into a new bean therefore produces a deep copy of the current object graph.
+     * If a mutable field is added later, this method must copy that field as well.
+     *
+     * @return a separate bean with the same identity and values
+     */
+    public UuidPojoInformation deepCopy() {
+<span class="fc" id="L179">        return new UuidPojoInformation(id, name, age, salary);</span>
+    }
+
+    /**
+     * Creates a copy retaining this bean's UUID and current values.
+     *
+     * &lt;p&gt;{@link Cloneable} is only a marker; this override performs the copy by
+     * constructing a new instance rather than calling {@link Object#clone()}.
+     * It delegates to {@link #deepCopy()} because all referenced field values are
+     * immutable.
+     *
+     * @return an independent copy representing the same UUID-identified entity
+     */
+    @Override
+    public UuidPojoInformation clone() {
+<span class="fc" id="L194">        return deepCopy();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L199">        return Objects.hash(id, name, age, salary);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L205">            return true;</span>
+        }
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        if (!(obj instanceof UuidPojoInformation other)) {</span>
+<span class="fc" id="L208">            return false;</span>
+        }
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        return age == other.age</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">                &amp;&amp; id.equals(other.id)</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">                &amp;&amp; Objects.equals(name, other.name)</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">                &amp;&amp; Objects.equals(salary, other.salary);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L218">        return summary();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

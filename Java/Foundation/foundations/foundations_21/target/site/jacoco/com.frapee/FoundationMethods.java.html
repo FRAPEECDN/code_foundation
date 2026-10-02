@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationMethods.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationMethods.java</span></div><h1>FoundationMethods.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+/**
+ * Foundation guide to method arguments, varargs, and overload resolution.
+ * Java has no default arguments; use overloads or an explicit fallback value.
+ */
+<span class="fc" id="L7">public class FoundationMethods {</span>
+
+    /**
+     * Add zero or more values using a varargs parameter.
+     * @param values values to add
+     * @return sum of all values
+     */
+    public int sum(int... values) {
+<span class="fc" id="L15">        int result = 0;</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        for (int value : values) {</span>
+<span class="fc" id="L17">            result += value;</span>
+        }
+<span class="fc" id="L19">        return result;</span>
+    }
+
+    /** @param value integer to describe
+     * @return description selected by overload resolution */
+    public String describe(int value) {
+<span class="fc" id="L25">        return &quot;int:&quot; + value;</span>
+    }
+
+    /** @param value decimal value to describe
+     * @return description selected by overload resolution */
+    public String describe(double value) {
+<span class="fc" id="L31">        return &quot;double:&quot; + value;</span>
+    }
+
+    /** @param value text to describe
+     * @return description selected by overload resolution */
+    public String describe(String value) {
+<span class="fc" id="L37">        return &quot;String:&quot; + value;</span>
+    }
+
+    /**
+     * Select a fallback explicitly when the preferred value is zero.
+     * @param value preferred value
+     * @param fallback value used when value is zero
+     * @return value when non-zero, otherwise fallback
+     */
+    public int useFallbackValue(int value, int fallback) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        return value == 0 ? fallback : value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

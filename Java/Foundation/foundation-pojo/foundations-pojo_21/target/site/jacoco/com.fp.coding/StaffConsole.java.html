@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StaffConsole.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">foundations-pojo_21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">StaffConsole.java</span></div><h1>StaffConsole.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.List;
+
+/** Console actions for creating staff and changing department membership. */
+final class StaffConsole {
+    private final ConsoleContext context;
+
+<span class="nc" id="L9">    StaffConsole(ConsoleContext context) {</span>
+<span class="nc" id="L10">        this.context = context;</span>
+<span class="nc" id="L11">    }</span>
+
+    void runMenu() {
+<span class="nc" id="L14">        boolean returning = false;</span>
+<span class="nc bnc" id="L15" title="All 2 branches missed.">        while (!returning) {</span>
+<span class="nc" id="L16">            System.out.println(&quot;\nStaff: 1. List directory  2. Add staff  3. Add to department&quot;</span>
+                    + &quot;  4. Remove from department  0. Back&quot;);
+<span class="nc bnc" id="L18" title="All 6 branches missed.">            switch (context.readInt(&quot;Choose an action: &quot;)) {</span>
+<span class="nc" id="L19">                case 1 -&gt; context.staffDirectory.forEach(staff -&gt; System.out.println(staff.summary()));</span>
+<span class="nc" id="L20">                case 2 -&gt; addStaff();</span>
+<span class="nc" id="L21">                case 3 -&gt; addStaffToDepartment();</span>
+<span class="nc" id="L22">                case 4 -&gt; removeStaffFromDepartment();</span>
+<span class="nc" id="L23">                case 0 -&gt; returning = true;</span>
+<span class="nc" id="L24">                default -&gt; System.out.println(&quot;Unknown action.&quot;);</span>
+            }
+        }
+<span class="nc" id="L27">    }</span>
+
+    private void addStaff() {
+<span class="nc" id="L30">        System.out.println(&quot;1. Manager  2. Developer  3. Project owner&quot;);</span>
+<span class="nc" id="L31">        String name = context.readText(&quot;Staff name: &quot;);</span>
+<span class="nc" id="L32">        double salary = context.readDouble(&quot;Annual salary: &quot;);</span>
+<span class="nc bnc" id="L33" title="All 4 branches missed.">        Staff newStaff = switch (context.readInt(&quot;Role: &quot;)) {</span>
+<span class="nc" id="L34">            case 1 -&gt; new Manager(name, salary, context.readInt(&quot;Team size: &quot;));</span>
+<span class="nc" id="L35">            case 2 -&gt; new Developer(name, salary, context.readText(&quot;Specialty: &quot;));</span>
+<span class="nc" id="L36">            case 3 -&gt; new ProjectOwner(name, salary);</span>
+<span class="nc" id="L37">            default -&gt; null;</span>
+<span class="nc" id="L38">        };</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (newStaff == null) {</span>
+<span class="nc" id="L40">            System.out.println(&quot;Unknown role; no staff member was added.&quot;);</span>
+        } else {
+<span class="nc" id="L42">            context.staffDirectory.add(newStaff);</span>
+<span class="nc" id="L43">            System.out.println(&quot;Added &quot; + newStaff.summary() + &quot;.&quot;);</span>
+        }
+<span class="nc" id="L45">    }</span>
+
+    private void addStaffToDepartment() {
+<span class="nc" id="L48">        Department department = context.select(&quot;department&quot;, context.departments, Department::getName);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (department == null) return;</span>
+<span class="nc" id="L50">        List&lt;Developer&gt; developers = context.staffDirectory.stream()</span>
+<span class="nc" id="L51">                .filter(Developer.class::isInstance).map(Developer.class::cast)</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                .filter(candidate -&gt; department.getStaffMembers().stream().noneMatch(member -&gt; member == candidate))</span>
+<span class="nc" id="L53">                .toList();</span>
+<span class="nc" id="L54">        Developer developer = context.select(&quot;available developer&quot;, developers, Staff::summary);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (developer != null) {</span>
+<span class="nc" id="L56">            department.addDeveloper(developer, StaffLevel.MID, StaffContent.NEUTRAL);</span>
+<span class="nc" id="L57">            System.out.println(&quot;Added developer to &quot; + department.getName() + &quot;.&quot;);</span>
+        }
+<span class="nc" id="L59">    }</span>
+
+    private void removeStaffFromDepartment() {
+<span class="nc" id="L62">        Department department = context.select(&quot;department&quot;, context.departments, Department::getName);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (department == null) return;</span>
+<span class="nc" id="L64">        Staff staff = context.select(&quot;staff member&quot;, department.getStaffMembers(), Staff::summary);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (staff == null) return;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (department.removeStaff(staff)) {</span>
+<span class="nc" id="L67">            System.out.println(&quot;Removed &quot; + staff.getName() + &quot; from &quot; + department.getName() + &quot;.&quot;);</span>
+        } else {
+<span class="nc" id="L69">            System.out.println(&quot;A department's manager and project owner are required and cannot be removed.&quot;);</span>
+        }
+<span class="nc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

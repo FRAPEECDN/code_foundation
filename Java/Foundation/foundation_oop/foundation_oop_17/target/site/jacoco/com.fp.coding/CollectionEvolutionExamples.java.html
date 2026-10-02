@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CollectionEvolutionExamples.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 17</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">CollectionEvolutionExamples.java</span></div><h1>CollectionEvolutionExamples.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+/** Examples of modern collection and Stream APIs available by Java 17. */
+public final class CollectionEvolutionExamples {
+    private CollectionEvolutionExamples() {
+    }
+
+    /** Runs immutable collection factory, {@code Stream.toList()}, and {@code mapMulti()} examples. */
+    public static void main(String[] args) {
+<span class="fc" id="L15">        List&lt;UuidPojoInformation&gt; immutableList = List.of(</span>
+<span class="fc" id="L16">                new UuidPojoInformation(&quot;Ada Lovelace&quot;, 36, 120000.0),</span>
+<span class="fc" id="L17">                new UuidPojoInformation(&quot;Grace Hopper&quot;, 85, 150000.0));</span>
+<span class="fc" id="L18">        Set&lt;String&gt; immutableSet = Set.of(&quot;List&quot;, &quot;Set&quot;, &quot;Map&quot;);</span>
+<span class="fc" id="L19">        Map&lt;UUID, UuidPojoInformation&gt; immutableMap = Map.of(</span>
+<span class="fc" id="L20">                immutableList.get(0).getId(), immutableList.get(0),</span>
+<span class="fc" id="L21">                immutableList.get(1).getId(), immutableList.get(1));</span>
+
+<span class="fc" id="L23">        List&lt;String&gt; names = immutableList.stream().map(UuidPojoInformation::getName).toList();</span>
+<span class="fc" id="L24">        List&lt;String&gt; nameParts = immutableList.stream()</span>
+<span class="fc" id="L25">                .&lt;String&gt;mapMulti((person, downstream) -&gt; {</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">                    for (String part : person.getName().split(&quot; &quot;)) {</span>
+<span class="fc" id="L27">                        downstream.accept(part);</span>
+                    }
+<span class="fc" id="L29">                })</span>
+<span class="fc" id="L30">                .toList();</span>
+
+<span class="fc" id="L32">        System.out.println(&quot;Java 9 immutable factories: &quot;</span>
+<span class="fc" id="L33">                + immutableList.size() + &quot;/&quot; + immutableSet.size() + &quot;/&quot; + immutableMap.size());</span>
+<span class="fc" id="L34">        System.out.println(&quot;Java 16 Stream.toList(): &quot; + names);</span>
+<span class="fc" id="L35">        System.out.println(&quot;Java 16 mapMulti(): &quot; + nameParts);</span>
+<span class="fc" id="L36">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

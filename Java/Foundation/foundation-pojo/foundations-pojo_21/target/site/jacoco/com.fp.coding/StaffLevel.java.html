@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StaffLevel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">foundations-pojo_21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">StaffLevel.java</span></div><h1>StaffLevel.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import lombok.Getter;
+
+/** Department developer position and its numeric rank. */
+<span class="fc" id="L6">@Getter</span>
+public enum StaffLevel {
+<span class="fc" id="L8">    JUNIOR(1),</span>
+<span class="fc" id="L9">    MID(2),</span>
+<span class="fc" id="L10">    SENIOR(3),</span>
+<span class="fc" id="L11">    LEAD(4);</span>
+
+    private final int ordinal;
+
+<span class="fc" id="L15">    StaffLevel(int ordinal) {</span>
+<span class="fc" id="L16">        this.ordinal = ordinal;</span>
+<span class="fc" id="L17">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

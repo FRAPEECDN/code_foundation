@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationFiles.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationFiles.java</span></div><h1>FoundationFiles.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+/**
+ * Foundation guide to Path, Files, text, binary data, and resource cleanup.
+ * The resource methods make try-with-resources visible; the convenience methods
+ * show the shorter Files API for the same common operations.
+ */
+<span class="fc" id="L17">public class FoundationFiles {</span>
+
+    /**
+     * Write text using the convenience Files API.
+     * @param path destination path
+     * @param value text to write
+     * @throws IOException when the file cannot be written
+     */
+    public void writeText(Path path, String value) throws IOException {
+<span class="fc" id="L26">        Files.writeString(path, value);</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Read text using the convenience Files API.
+     * @param path source path
+     * @return file contents as text
+     * @throws IOException when the file cannot be read
+     */
+    public String readText(Path path) throws IOException {
+<span class="fc" id="L36">        return Files.readString(path);</span>
+    }
+
+    /**
+     * Write UTF-8 text with an explicitly managed writer.
+     * @param path destination path
+     * @param value UTF-8 text to write
+     * @throws IOException when writing fails
+     */
+    public void writeTextWithResource(Path path, String value) throws IOException {
+<span class="fc" id="L46">        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {</span>
+<span class="fc" id="L47">            writer.write(value);</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Read UTF-8 text with an explicitly managed reader.
+     * @param path source path
+     * @return all lines joined with the platform line separator
+     * @throws IOException when reading fails
+     */
+    public String readTextWithResource(Path path) throws IOException {
+<span class="fc" id="L58">        StringBuilder value = new StringBuilder();</span>
+<span class="fc" id="L59">        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {</span>
+            String line;
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                if (value.length() &gt; 0) {</span>
+<span class="fc" id="L63">                    value.append(System.lineSeparator());</span>
+                }
+<span class="fc" id="L65">                value.append(line);</span>
+            }
+        }
+<span class="fc" id="L68">        return value.toString();</span>
+    }
+
+    /**
+     * Write raw bytes with an explicitly managed output stream.
+     * @param path destination path
+     * @param value raw bytes to write
+     * @throws IOException when writing fails
+     */
+    public void writeBinaryWithResource(Path path, byte[] value) throws IOException {
+<span class="fc" id="L78">        try (OutputStream output = Files.newOutputStream(path)) {</span>
+<span class="fc" id="L79">            output.write(value);</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Read raw bytes with an explicitly managed input stream.
+     * @param path source path
+     * @return all bytes read from the file
+     * @throws IOException when reading fails
+     */
+    public byte[] readBinaryWithResource(Path path) throws IOException {
+<span class="fc" id="L90">        try (InputStream input = Files.newInputStream(path)) {</span>
+<span class="fc" id="L91">            return input.readAllBytes();</span>
+        }
+    }
+
+    /** @param path path to inspect
+     * @return true when the path exists */
+    public boolean exists(Path path) {
+<span class="fc" id="L98">        return Files.exists(path);</span>
+    }
+
+    /** @param directory base directory
+     * @param fileName child name
+     * @return resolved child path */
+    public Path resolve(Path directory, String fileName) {
+<span class="fc" id="L105">        return directory.resolve(fileName);</span>
+    }
+
+    /** @param path path to delete
+     * @throws IOException when deletion fails */
+    public void deleteIfExists(Path path) throws IOException {
+<span class="fc" id="L111">        Files.deleteIfExists(path);</span>
+<span class="fc" id="L112">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

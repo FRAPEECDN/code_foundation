@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationStrings.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundations - Java 25</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationStrings.java</span></div><h1>FoundationStrings.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+/**
+ * Foundation guide to String values and StringBuilder.
+ * Demonstrates immutable String operations, mutable text building, text blocks,
+ * searching, slicing, replacement, and splitting.
+ */
+<span class="fc" id="L8">public class FoundationStrings {</span>
+
+    /**
+     * Compare String contents rather than object references.
+     * @param left first string
+     * @param right second string
+     * @return true when contents match
+     */
+    public boolean equalByValue(String left, String right) {
+<span class="fc" id="L17">        return left.equals(right);</span>
+    }
+
+    /**
+     * Concatenate text into a new String value.
+     * @param left first text
+     * @param right text to append
+     * @return newly concatenated String
+     */
+    public String concatenate(String left, String right) {
+<span class="fc" id="L27">        return left + right;</span>
+    }
+
+    /**
+     * Build repeated text with a mutable StringBuilder.
+     * @param first initial text
+     * @param second text to append
+     * @param number numeric text to append
+     * @return built text
+     */
+    public String buildText(String first, String second, int number) {
+<span class="fc" id="L38">        StringBuilder builder = new StringBuilder(first);</span>
+<span class="fc" id="L39">        builder.append(':').append(second).append(':').append(number);</span>
+<span class="fc" id="L40">        return builder.toString();</span>
+    }
+
+    /** @param value text to measure
+     * @return UTF-16 code-unit length */
+    public int lengthOf(String value) {
+<span class="fc" id="L46">        return value.length();</span>
+    }
+
+    /** @param value text to inspect
+     * @param index zero-based character index
+     * @return character at index */
+    public char characterAt(String value, int index) {
+<span class="fc" id="L53">        return value.charAt(index);</span>
+    }
+
+    /** @param value text to search
+     * @param search text to find
+     * @return true when search occurs in value */
+    public boolean contains(String value, String search) {
+<span class="fc" id="L60">        return value.contains(search);</span>
+    }
+
+    /** @param value source text
+     * @param fromIndex inclusive start
+     * @param toIndex exclusive end
+     * @return selected substring */
+    public String substring(String value, int fromIndex, int toIndex) {
+<span class="fc" id="L68">        return value.substring(fromIndex, toIndex);</span>
+    }
+
+    /** @param value source text
+     * @param target text to replace
+     * @param replacement replacement text
+     * @return new text with replacements */
+    public String replace(String value, String target, String replacement) {
+<span class="fc" id="L76">        return value.replace(target, replacement);</span>
+    }
+
+    /** @param value source text
+     * @param delimiter regular-expression delimiter
+     * @return split text parts */
+    public String[] split(String value, String delimiter) {
+<span class="fc" id="L83">        return value.split(delimiter);</span>
+    }
+
+    /** @return a Java text block containing two lines */
+    public String textBlock() {
+<span class="fc" id="L88">        return &quot;&quot;&quot;</span>
+                first line
+                second line
+                &quot;&quot;&quot;;
+    }
+
+    /** @param value text to trim and convert
+     * @return trimmed uppercase text */
+    public String trimAndUppercase(String value) {
+<span class="fc" id="L97">        return value.trim().toUpperCase();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

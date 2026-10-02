@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObjectsOptionalExamples.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation OOP - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.fp.coding</a> &gt; <span class="el_source">ObjectsOptionalExamples.java</span></div><h1>ObjectsOptionalExamples.java</h1><pre class="source lang-java linenums">package com.fp.coding;
+
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * Runnable examples of {@link Objects} helpers and {@link Optional} with POJOs and records.
+ *
+ * &lt;p&gt;The catalog demonstrates a has-a relationship and returns optional lookup
+ * results. The main method shows null-safe equality, hashing, string conversion,
+ * mapping an optional bean to its nullable salary, and handling absent values.
+ */
+public final class ObjectsOptionalExamples {
+    private ObjectsOptionalExamples() {
+    }
+
+    /** Runs the Objects and Optional examples and prints their results.
+     *
+     * @param args command-line arguments; unused
+     */
+    public static void main(String[] args) {
+<span class="fc" id="L22">        PojoInformation pojo = new PojoInformation(101, &quot;Ada Lovelace&quot;, 36, 120000.0);</span>
+<span class="fc" id="L23">        PojoInformation pojoWithoutSalary = new PojoInformation(102, &quot;Katherine Johnson&quot;, 26);</span>
+<span class="fc" id="L24">        RecordInformation record = new RecordInformation(&quot;Grace Hopper&quot;, 85, 150000.0);</span>
+
+<span class="fc" id="L26">        InformationCatalog catalog = new InformationCatalog();</span>
+<span class="fc" id="L27">        catalog.add(pojo);</span>
+<span class="fc" id="L28">        catalog.add(pojoWithoutSalary);</span>
+<span class="fc" id="L29">        catalog.add(record);</span>
+
+<span class="fc" id="L31">        System.out.println(&quot;Objects.equals on a POJO copy: &quot; + Objects.equals(pojo, pojo.copy()));</span>
+<span class="fc" id="L32">        System.out.println(&quot;Objects.equals on equal records: &quot;</span>
+<span class="fc" id="L33">                + Objects.equals(record, new RecordInformation(&quot;Grace Hopper&quot;, 85, 150000.0)));</span>
+<span class="fc" id="L34">        System.out.println(&quot;Objects.hash for record components: &quot;</span>
+<span class="fc" id="L35">                + Objects.hash(record.name(), record.age(), record.salary()));</span>
+
+<span class="fc" id="L37">        Optional&lt;PojoInformation&gt; foundPojo = catalog.findPojoById(101);</span>
+<span class="fc" id="L38">        System.out.println(&quot;Found POJO: &quot; + foundPojo.map(Objects::toString).orElse(&quot;No POJO found&quot;));</span>
+
+<span class="fc" id="L40">        Optional&lt;RecordInformation&gt; foundRecord = catalog.findRecordByName(&quot;Grace Hopper&quot;);</span>
+<span class="fc" id="L41">        foundRecord.map(RecordInformation::summary).ifPresentOrElse(</span>
+<span class="fc" id="L42">                summary -&gt; System.out.println(&quot;Found record: &quot; + summary),</span>
+<span class="nc" id="L43">                () -&gt; System.out.println(&quot;No record found&quot;));</span>
+<span class="fc" id="L44">        catalog.findRecordByName(&quot;Unknown&quot;).map(RecordInformation::summary).ifPresentOrElse(</span>
+<span class="nc" id="L45">                summary -&gt; System.out.println(&quot;Found record: &quot; + summary),</span>
+<span class="fc" id="L46">                () -&gt; System.out.println(&quot;Optional lookup returned no record&quot;));</span>
+
+<span class="fc" id="L48">        System.out.println(&quot;Missing record: &quot; + catalog.findRecordByName(&quot;Unknown&quot;)</span>
+<span class="fc" id="L49">                .map(RecordInformation::summary)</span>
+<span class="fc" id="L50">                .orElse(&quot;No matching record&quot;));</span>
+<span class="fc" id="L51">        System.out.println(&quot;Present POJO salary: &quot; + catalog.findPojoSalary(101)</span>
+<span class="fc" id="L52">                .map(Object::toString).orElse(&quot;No salary available&quot;));</span>
+<span class="fc" id="L53">        System.out.println(&quot;Null POJO salary: &quot; + catalog.findPojoSalary(102)</span>
+<span class="fc" id="L54">                .map(Object::toString).orElse(&quot;No salary available&quot;));</span>
+<span class="fc" id="L55">        System.out.println(&quot;Missing POJO: &quot; + catalog.findPojoSalary(999)</span>
+<span class="fc" id="L56">                .map(Object::toString).orElse(&quot;No matching POJO&quot;));</span>
+
+<span class="fc" id="L58">        catalog.entries().forEach(entry -&gt; System.out.println(&quot;Polymorphic summary: &quot; + entry.summary()));</span>
+<span class="fc" id="L59">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

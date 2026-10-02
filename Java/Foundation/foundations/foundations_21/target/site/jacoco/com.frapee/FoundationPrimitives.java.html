@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FoundationPrimitives.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Foundation - Java 21</a> &gt; <a href="index.source.html" class="el_package">com.frapee</a> &gt; <span class="el_source">FoundationPrimitives.java</span></div><h1>FoundationPrimitives.java</h1><pre class="source lang-java linenums">package com.frapee;
+
+/**
+ * Foundation guide to Java primitive values and primitive conversions.
+ */
+<span class="fc" id="L6">public class FoundationPrimitives {</span>
+
+    /** @return a primitive boolean value */
+<span class="fc" id="L9">    public boolean booleanValue() { return false; }</span>
+
+    /** @return a primitive byte value */
+<span class="fc" id="L12">    public byte byteValue() { return 10; }</span>
+
+    /** @return a primitive short value showing a widened byte boundary */
+<span class="fc" id="L15">    public short shortValue() { return (short) Byte.MAX_VALUE + 1; }</span>
+
+    /** @return a primitive int value showing a widened short boundary */
+<span class="fc" id="L18">    public int intValue() { return (int) Short.MAX_VALUE + 1; }</span>
+
+    /** @return a primitive long value showing a widened int boundary */
+<span class="fc" id="L21">    public long longValue() { return (long) Integer.MAX_VALUE + 1; }</span>
+
+    /** @return a primitive float value */
+<span class="fc" id="L24">    public float floatValue() { return 343.12f; }</span>
+
+    /** @return a primitive double value */
+<span class="fc" id="L27">    public double doubleValue() { return 35438580.21473; }</span>
+
+    /** @return a primitive character value */
+<span class="fc" id="L30">    public char charValue() { return 'a'; }</span>
+
+    /** @return the smallest value representable by an int */
+<span class="fc" id="L33">    public int minimumInt() { return Integer.MIN_VALUE; }</span>
+
+    /** @return the largest value representable by an int */
+<span class="fc" id="L36">    public int maximumInt() { return Integer.MAX_VALUE; }</span>
+
+    /** @param value integer to convert
+     * @return hexadecimal representation of value */
+<span class="fc" id="L40">    public String intAsHex(int value) { return Integer.toHexString(value); }</span>
+
+    /**
+     * Widen a byte to long without an explicit cast.
+     * @param value byte to widen
+     * @return widened value
+     */
+<span class="fc" id="L47">    public long widenByte(byte value) { return value; }</span>
+
+    /**
+     * Narrow an int to byte; values outside the byte range may be truncated.
+     * @param value int to narrow
+     * @return narrowed value
+     */
+<span class="fc" id="L54">    public byte narrowInt(int value) { return (byte) value; }</span>
+
+    /**
+     * Demonstrate integer wraparound beyond the type range.
+     * @return Integer.MIN_VALUE after overflow
+     */
+<span class="fc" id="L60">    public int integerOverflow() { return Integer.MAX_VALUE + 1; }</span>
+
+    /** @return positive floating-point infinity */
+<span class="fc" id="L63">    public double positiveInfinity() { return Double.POSITIVE_INFINITY; }</span>
+
+    /** @param value floating-point value to inspect
+     * @return true when value is NaN */
+<span class="fc" id="L67">    public boolean isNaN(double value) { return Double.isNaN(value); }</span>
+
+    /** @param value character to convert
+     * @return numeric Unicode code point value */
+<span class="fc" id="L71">    public int characterCode(char value) { return value; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
